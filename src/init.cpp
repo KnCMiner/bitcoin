@@ -19,6 +19,7 @@
 #include "util.h"
 #include "wallet.h"
 #include "walletdb.h"
+#include "main.h"
 
 #include <inttypes.h>
 #include <stdint.h>
@@ -469,6 +470,9 @@ bool AppInit2(boost::thread_group& threadGroup, bool fForceServer)
     // Only allow a limited number of outgoing connections to not overload the network
     nMaxOutbound = GetArg("-maxoutbound", 8);
     nMaxOutbound = std::min(nMaxOutbound, nMaxConnections);
+
+    // Limit number of blocks that may be requested in one go.
+    nMaxGetBlock = GetArg("-limitgetblock", 200);
 
     // ********************************************************* Step 3: parameter-to-internal-flags
 
