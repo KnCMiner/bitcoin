@@ -466,6 +466,10 @@ bool AppInit2(boost::thread_group& threadGroup, bool fForceServer)
     if (nFD - MIN_CORE_FILEDESCRIPTORS < nMaxConnections)
         nMaxConnections = nFD - MIN_CORE_FILEDESCRIPTORS;
 
+    // Only allow a limited number of outgoing connections to not overload the network
+    nMaxOutbound = GetArg("-maxoutbound", 8);
+    nMaxOutbound = std::min(nMaxOutbound, nMaxConnections);
+
     // ********************************************************* Step 3: parameter-to-internal-flags
 
     fDebug = !mapMultiArgs["-debug"].empty();
