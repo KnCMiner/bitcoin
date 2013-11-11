@@ -259,7 +259,15 @@ int LogPrint(const char* category, const char* pszFormat, ...)
     int ret = 0; // Returns total number of characters written
     if (fPrintToConsole)
     {
-        // print to console
+        // Debug print useful for profiling
+        static bool fStartedNewLine = true;
+        if (fLogTimestamps && fStartedNewLine)
+            ret += printf("%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
+        if (pszFormat[strlen(pszFormat) - 1] == '\n')
+            fStartedNewLine = true;
+        else
+            fStartedNewLine = false;
+
         va_list arg_ptr;
         va_start(arg_ptr, pszFormat);
         ret += vprintf(pszFormat, arg_ptr);
@@ -267,7 +275,6 @@ int LogPrint(const char* category, const char* pszFormat, ...)
     }
     else if (!fPrintToDebugger)
     {
-        static bool fStartedNewLine = true;
         boost::call_once(&DebugPrintInit, debugPrintInitFlag);
 
         if (fileout == NULL)
@@ -284,6 +291,7 @@ int LogPrint(const char* category, const char* pszFormat, ...)
         }
 
         // Debug print useful for profiling
+        static bool fStartedNewLine = true;
         if (fLogTimestamps && fStartedNewLine)
             ret += fprintf(fileout, "%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
         if (pszFormat[strlen(pszFormat) - 1] == '\n')
