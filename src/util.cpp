@@ -228,12 +228,19 @@ int LogPrintStr(const std::string &str)
     if (fPrintToConsole)
     {
         // print to console
+        static bool fStartedNewLine = true;
+        if (fLogTimestamps && fStartedNewLine)
+            ret += fprintf(stdout, "%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
+        if (!str.empty() && str[str.size()-1] == '\n')
+            fStartedNewLine = true;
+        else
+            fStartedNewLine = false;
+
         ret = fwrite(str.data(), 1, str.size(), stdout);
         fflush(stdout);
     }
     else if (fPrintToDebugLog && AreBaseParamsConfigured())
     {
-        static bool fStartedNewLine = true;
         boost::call_once(&DebugPrintInit, debugPrintInitFlag);
 
         if (fileout == NULL)
@@ -250,6 +257,7 @@ int LogPrintStr(const std::string &str)
         }
 
         // Debug print useful for profiling
+        static bool fStartedNewLine = true;
         if (fLogTimestamps && fStartedNewLine)
             ret += fprintf(fileout, "%s ", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()).c_str());
         if (!str.empty() && str[str.size()-1] == '\n')
