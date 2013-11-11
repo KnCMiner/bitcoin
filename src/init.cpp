@@ -750,6 +750,10 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
     }
 
+    // Only allow a limited number of outgoing connections to not overload the network
+    nMaxOutbound = GetArg("-maxoutbound", 8);
+    nMaxOutbound = std::min(nMaxOutbound, nMaxConnections);
+
     // ********************************************************* Step 3: parameter-to-internal-flags
 
     fDebug = !mapMultiArgs["-debug"].empty();
