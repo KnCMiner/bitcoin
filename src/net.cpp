@@ -973,6 +973,15 @@ void ThreadSocketHandler()
             else
             {
                 LogPrint("net", "accepted connection %s\n", addr.ToString().c_str());
+		// Set to non-blocking
+#ifdef WIN32
+		u_long nOne = 1;
+		if (ioctlsocket(hSocket, FIONBIO, &nOne) == SOCKET_ERROR)
+		    LogPrintf("ConnectSocket() : ioctlsocket non-blocking setting failed, error %d\n", WSAGetLastError());
+#else
+		if (fcntl(hSocket, F_SETFL, O_NONBLOCK) == SOCKET_ERROR)
+		    LogPrintf("ConnectSocket() : fcntl non-blocking setting failed, error %d\n", errno);
+#endif
                 CNode* pnode = new CNode(hSocket, addr, "", true);
                 pnode->AddRef();
                 {
