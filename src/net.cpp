@@ -80,6 +80,7 @@ static std::vector<ListenSocket> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = 125;
 bool fAddressesInitialized = false;
+int nMaxOutbound = MAX_OUTBOUND_CONNECTIONS;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -106,6 +107,8 @@ boost::condition_variable messageHandlerCondition;
 // Signals for message handling
 static CNodeSignals g_signals;
 CNodeSignals& GetNodeSignals() { return g_signals; }
+
+bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
 void AddOneShot(string strDest)
 {
@@ -857,7 +860,7 @@ void ThreadSocketHandler()
                     LogPrintf("connection from %s dropped: non-selectable socket\n", addr.ToString());
                     CloseSocket(hSocket);
                 }
-                else if (nInbound >= nMaxConnections - MAX_OUTBOUND_CONNECTIONS)
+                else if (nInbound >= nMaxConnections - nMaxOutbound)
                 {
                     LogPrint("net", "connection from %s dropped (full)\n", addr.ToString());
                     CloseSocket(hSocket);
@@ -1643,8 +1646,6 @@ void StartNode(boost::thread_group& threadGroup, CScheduler& scheduler)
     fAddressesInitialized = true;
 
     if (semOutbound == NULL) {
-        // initialize semaphore
-        int nMaxOutbound = min(MAX_OUTBOUND_CONNECTIONS, nMaxConnections);
         semOutbound = new CSemaphore(nMaxOutbound);
     }
 
@@ -1686,7 +1687,7 @@ bool StopNode()
     LogPrintf("StopNode()\n");
     MapPort(false);
     if (semOutbound)
-        for (int i=0; i<MAX_OUTBOUND_CONNECTIONS; i++)
+        for (int i=0; i<nMaxOutbound; i++)
             semOutbound->post();
 
     if (fAddressesInitialized)
