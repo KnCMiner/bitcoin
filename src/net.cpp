@@ -1324,7 +1324,7 @@ void ThreadOpenAddedConnections()
             }
             BOOST_FOREACH(string& strAddNode, lAddresses) {
                 CAddress addr;
-                CSemaphoreGrant grant(*semOutbound);
+                CSemaphoreGrant grant(*semOutbound, true);
                 OpenNetworkConnection(addr, &grant, strAddNode.c_str());
                 MilliSleep(500);
             }
@@ -1371,7 +1371,7 @@ void ThreadOpenAddedConnections()
         }
         BOOST_FOREACH(vector<CService>& vserv, lservAddressesToAdd)
         {
-            CSemaphoreGrant grant(*semOutbound);
+            CSemaphoreGrant grant(*semOutbound, true);
             OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
             MilliSleep(500);
         }
