@@ -39,9 +39,18 @@ ClientModel::~ClientModel()
     unsubscribeFromCoreSignals();
 }
 
-int ClientModel::getNumConnections() const
+int ClientModel::getNumConnections(unsigned int flags) const
 {
-    return vNodes.size();
+    LOCK(cs_vNodes);
+    if (flags == CONNECTIONS_ALL) // Shortcut if we want total
+        return vNodes.size();
+
+    int nNum = 0;
+    BOOST_FOREACH(CNode* pnode, vNodes)
+    if (flags & (pnode->fInbound ? CONNECTIONS_IN : CONNECTIONS_OUT))
+        nNum++;
+
+    return nNum;
 }
 
 int ClientModel::getNumBlocks() const
@@ -123,9 +132,12 @@ void ClientModel::updateAlert(const QString &hash, int status)
     emit alertsChanged(getStatusBarWarnings());
 }
 
-bool ClientModel::isTestNet() const
+QString ClientModel::getNetworkName() const
 {
-    return TestNet();
+    QString netname(QString::fromStdString(Params().DataDir()));
+    if(netname.isEmpty())
+        netname = "main";
+    return netname;
 }
 
 bool ClientModel::inInitialBlockDownload() const

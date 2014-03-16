@@ -11,11 +11,11 @@
 #include "optionsmodel.h"
 #include "walletmodel.h"
 
-#include <QPixmap>
 #include <QClipboard>
-#include <QMouseEvent>
 #include <QDrag>
 #include <QMimeData>
+#include <QMouseEvent>
+#include <QPixmap>
 #if QT_VERSION < 0x050000
 #include <QUrl>
 #endif
@@ -85,12 +85,10 @@ ReceiveRequestDialog::ReceiveRequestDialog(QWidget *parent) :
 
 #ifndef USE_QRCODE
     ui->btnSaveAs->setVisible(false);
-    ui->btnCopyImage->setVisible(false);
     ui->lblQRCode->setVisible(false);
 #endif
 
     connect(ui->btnSaveAs, SIGNAL(clicked()), ui->lblQRCode, SLOT(saveImage()));
-    connect(ui->btnCopyImage, SIGNAL(clicked()), ui->lblQRCode, SLOT(copyImage()));
 }
 
 ReceiveRequestDialog::~ReceiveRequestDialog()
@@ -177,13 +175,10 @@ void ReceiveRequestDialog::update()
 
 void ReceiveRequestDialog::on_btnCopyURI_clicked()
 {
-    QString uri = GUIUtil::formatBitcoinURI(info);
-    QApplication::clipboard()->setText(uri, QClipboard::Clipboard);
-    QApplication::clipboard()->setText(uri, QClipboard::Selection);
+    GUIUtil::setClipboard(GUIUtil::formatBitcoinURI(info));
 }
 
 void ReceiveRequestDialog::on_btnCopyAddress_clicked()
 {
-    QApplication::clipboard()->setText(info.address, QClipboard::Clipboard);
-    QApplication::clipboard()->setText(info.address, QClipboard::Selection);
+    GUIUtil::setClipboard(info.address);
 }

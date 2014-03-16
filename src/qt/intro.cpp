@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013 The Bitcoin developers
+// Copyright (c) 2011-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -14,7 +14,7 @@
 
 /* Minimum free space (in bytes) needed for data directory */
 static const uint64_t GB_BYTES = 1000000000LL;
-static const uint64_t BLOCK_CHAIN_SIZE = 10LL * GB_BYTES;
+static const uint64_t BLOCK_CHAIN_SIZE = 20LL * GB_BYTES;
 
 /* Check free space asynchronously to prevent hanging the UI thread.
 
@@ -146,9 +146,9 @@ QString Intro::getDefaultDataDirectory()
     return QString::fromStdString(GetDefaultDataDir().string());
 }
 
-void Intro::pickDataDirectory(bool fIsTestnet)
+void Intro::pickDataDirectory()
 {
-    namespace fs = boost::filesystem;;
+    namespace fs = boost::filesystem;
     QSettings settings;
     /* If data directory provided on command line, no need to look at settings
        or show a picking dialog */
@@ -164,10 +164,7 @@ void Intro::pickDataDirectory(bool fIsTestnet)
         /* If current default data directory does not exist, let the user choose one */
         Intro intro;
         intro.setDataDirectory(dataDir);
-        if (!fIsTestnet)
-            intro.setWindowIcon(QIcon(":icons/bitcoin"));
-        else
-            intro.setWindowIcon(QIcon(":icons/bitcoin_testnet"));
+        intro.setWindowIcon(QIcon(":icons/bitcoin"));
 
         while(true)
         {
@@ -233,7 +230,7 @@ void Intro::on_dataDirectory_textChanged(const QString &dataDirStr)
 
 void Intro::on_ellipsisButton_clicked()
 {
-    QString dir = QFileDialog::getExistingDirectory(0, "Choose data directory", ui->dataDirectory->text());
+    QString dir = QDir::toNativeSeparators(QFileDialog::getExistingDirectory(0, "Choose data directory", ui->dataDirectory->text()));
     if(!dir.isEmpty())
         ui->dataDirectory->setText(dir);
 }

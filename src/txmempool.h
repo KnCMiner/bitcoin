@@ -5,12 +5,41 @@
 #ifndef BITCOIN_TXMEMPOOL_H
 #define BITCOIN_TXMEMPOOL_H
 
+#include <list>
+
 #include "coins.h"
 #include "core.h"
 #include "sync.h"
 
 /** Fake height value used in CCoins to signify they are only in the memory pool (since 0.8) */
 static const unsigned int MEMPOOL_HEIGHT = 0x7FFFFFFF;
+
+/*
+ * CTxMemPool stores these:
+ */
+class CTxMemPoolEntry
+{
+private:
+    CTransaction tx;
+    int64_t nFee; // Cached to avoid expensive parent-transaction lookups
+    size_t nTxSize; // ... and avoid recomputing tx size
+    int64_t nTime; // Local time when entering the mempool
+    double dPriority; // Priority when entering the mempool
+    unsigned int nHeight; // Chain height when entering the mempool
+
+public:
+    CTxMemPoolEntry(const CTransaction& _tx, int64_t _nFee,
+                    int64_t _nTime, double _dPriority, unsigned int _nHeight);
+    CTxMemPoolEntry();
+    CTxMemPoolEntry(const CTxMemPoolEntry& other);
+
+    const CTransaction& GetTx() const { return this->tx; }
+    double GetPriority(unsigned int currentHeight) const;
+    int64_t GetFee() const { return nFee; }
+    size_t GetTxSize() const { return nTxSize; }
+    int64_t GetTime() const { return nTime; }
+    unsigned int GetHeight() const { return nHeight; }
+};
 
 /*
  * CTxMemPool stores valid-according-to-the-current-best-chain
@@ -30,7 +59,7 @@ private:
 
 public:
     mutable CCriticalSection cs;
-    std::map<uint256, CTransaction> mapTx;
+    std::map<uint256, CTxMemPoolEntry> mapTx;
     std::map<COutPoint, CInPoint> mapNextTx;
 
     CTxMemPool();
@@ -44,9 +73,9 @@ public:
     void check(CCoinsViewCache *pcoins) const;
     void setSanityCheck(bool _fSanityCheck) { fSanityCheck = _fSanityCheck; }
 
-    bool addUnchecked(const uint256& hash, const CTransaction &tx);
-    bool remove(const CTransaction &tx, bool fRecursive = false);
-    bool removeConflicts(const CTransaction &tx);
+    bool addUnchecked(const uint256& hash, const CTxMemPoolEntry &entry);
+    void remove(const CTransaction &tx, std::list<CTransaction>& removed, bool fRecursive = false);
+    void removeConflicts(const CTransaction &tx, std::list<CTransaction>& removed);
     void clear();
     void queryHashes(std::vector<uint256>& vtxid);
     void pruneSpent(const uint256& hash, CCoins &coins);

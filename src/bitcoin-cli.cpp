@@ -5,8 +5,10 @@
 
 #include "util.h"
 #include "init.h"
-#include "bitcoinrpc.h"
+#include "rpcclient.h"
+#include "rpcprotocol.h"
 #include "ui_interface.h" /* for _(...) */
+#include "chainparams.h"
 
 #include <boost/filesystem/operations.hpp>
 
@@ -26,6 +28,11 @@ static bool AppInitRPC(int argc, char* argv[])
         return false;
     }
     ReadConfigFile(mapArgs, mapMultiArgs);
+    // Check for -testnet or -regtest parameter (TestNet() calls are only valid after this clause)
+    if (!SelectParamsFromCommandLine()) {
+        fprintf(stderr, "Error: Invalid combination of -regtest and -testnet.\n");
+        return false;
+    }
 
     if (argc<2 || mapArgs.count("-?") || mapArgs.count("--help"))
     {
@@ -36,7 +43,7 @@ static bool AppInitRPC(int argc, char* argv[])
               "  bitcoin-cli [options] help                " + _("List commands") + "\n" +
               "  bitcoin-cli [options] help <command>      " + _("Get help for a command") + "\n";
 
-        strUsage += "\n" + HelpMessage(HMM_BITCOIN_CLI);
+        strUsage += "\n" + HelpMessageCli(true);
 
         fprintf(stdout, "%s", strUsage.c_str());
         return false;
@@ -49,23 +56,25 @@ int main(int argc, char* argv[])
     try
     {
         if(!AppInitRPC(argc, argv))
-            return 1;
+            return abs(RPC_MISC_ERROR);
     }
     catch (std::exception& e) {
         PrintExceptionContinue(&e, "AppInitRPC()");
+        return abs(RPC_MISC_ERROR);
     } catch (...) {
         PrintExceptionContinue(NULL, "AppInitRPC()");
+        return abs(RPC_MISC_ERROR);
     }
 
+    int ret = abs(RPC_MISC_ERROR);
     try
     {
-        if(!CommandLineRPC(argc, argv))
-            return 1;
+        ret = CommandLineRPC(argc, argv);
     }
     catch (std::exception& e) {
         PrintExceptionContinue(&e, "CommandLineRPC()");
     } catch (...) {
         PrintExceptionContinue(NULL, "CommandLineRPC()");
     }
-    return 0;
+    return ret;
 }

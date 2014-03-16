@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2013 The Bitcoin developers
+// Copyright (c) 2011-2014 The Bitcoin developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -95,7 +95,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
             //
             // Debit
             //
-            int64_t nTxFee = nDebit - GetValueOut(wtx);
+            int64_t nTxFee = nDebit - wtx.GetValueOut();
 
             for (unsigned int nOut = 0; nOut < wtx.vout.size(); nOut++)
             {
@@ -164,16 +164,16 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
         (wtx.IsCoinBase() ? 1 : 0),
         wtx.nTimeReceived,
         idx);
-    status.confirmed = wtx.IsConfirmed();
+    status.countsForBalance = wtx.IsTrusted() && !(wtx.GetBlocksToMaturity() > 0);
     status.depth = wtx.GetDepthInMainChain();
     status.cur_num_blocks = chainActive.Height();
 
-    if (!IsFinalTx(wtx))
+    if (!IsFinalTx(wtx, chainActive.Height() + 1))
     {
         if (wtx.nLockTime < LOCKTIME_THRESHOLD)
         {
             status.status = TransactionStatus::OpenUntilBlock;
-            status.open_for = wtx.nLockTime - chainActive.Height() + 1;
+            status.open_for = wtx.nLockTime - chainActive.Height();
         }
         else
         {
@@ -181,29 +181,12 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
             status.open_for = wtx.nLockTime;
         }
     }
-    else
-    {
-        if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-        {
-            status.status = TransactionStatus::Offline;
-        }
-        else if (status.depth < NumConfirmations)
-        {
-            status.status = TransactionStatus::Unconfirmed;
-        }
-        else
-        {
-            status.status = TransactionStatus::HaveConfirmations;
-        }
-    }
-
     // For generated transactions, determine maturity
-    if(type == TransactionRecord::Generated)
+    else if(type == TransactionRecord::Generated)
     {
-        int64_t nCredit = wtx.GetCredit(true);
-        if (nCredit == 0)
+        if (wtx.GetBlocksToMaturity() > 0)
         {
-            status.maturity = TransactionStatus::Immature;
+            status.status = TransactionStatus::Immature;
 
             if (wtx.IsInMainChain())
             {
@@ -211,18 +194,42 @@ void TransactionRecord::updateStatus(const CWalletTx &wtx)
 
                 // Check if the block was requested by anyone
                 if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
-                    status.maturity = TransactionStatus::MaturesWarning;
+                    status.status = TransactionStatus::MaturesWarning;
             }
             else
             {
-                status.maturity = TransactionStatus::NotAccepted;
+                status.status = TransactionStatus::NotAccepted;
             }
         }
         else
         {
-            status.maturity = TransactionStatus::Mature;
+            status.status = TransactionStatus::Confirmed;
         }
     }
+    else
+    {
+        if (status.depth < 0)
+        {
+            status.status = TransactionStatus::Conflicted;
+        }
+        else if (GetAdjustedTime() - wtx.nTimeReceived > 2 * 60 && wtx.GetRequestCount() == 0)
+        {
+            status.status = TransactionStatus::Offline;
+        }
+        else if (status.depth == 0)
+        {
+            status.status = TransactionStatus::Unconfirmed;
+        }
+        else if (status.depth < RecommendedNumConfirmations)
+        {
+            status.status = TransactionStatus::Confirming;
+        }
+        else
+        {
+            status.status = TransactionStatus::Confirmed;
+        }
+    }
+
 }
 
 bool TransactionRecord::statusUpdateNeeded()

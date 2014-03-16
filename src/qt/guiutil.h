@@ -9,6 +9,7 @@
 #include <QObject>
 #include <QString>
 
+class QValidatedLineEdit;
 class SendCoinsRecipient;
 
 QT_BEGIN_NAMESPACE
@@ -32,7 +33,7 @@ namespace GUIUtil
     QFont bitcoinAddressFont();
 
     // Set up widgets for address and amounts
-    void setupAddressWidget(QLineEdit *widget, QWidget *parent);
+    void setupAddressWidget(QValidatedLineEdit *widget, QWidget *parent);
     void setupAmountWidget(QLineEdit *widget, QWidget *parent);
 
     // Parse "bitcoin:" URI into recipient object, return true on successful parsing
@@ -54,6 +55,8 @@ namespace GUIUtil
        @see  TransactionView::copyLabel, TransactionView::copyAmount, TransactionView::copyAddress
      */
     void copyEntryData(QAbstractItemView *view, int column, int role=Qt::EditRole);
+
+    void setClipboard(const QString& str);
 
     /** Get save filename, mimics QFileDialog::getSaveFileName, except that it appends a default suffix
         when no suffix is provided by the user.
@@ -120,26 +123,6 @@ namespace GUIUtil
     void saveWindowGeometry(const QString& strSetting, QWidget *parent);
     /** Restore window size and position */
     void restoreWindowGeometry(const QString& strSetting, const QSize &defaultSizeIn, QWidget *parent);
-
-    /** Help message for Bitcoin-Qt, shown with --help. */
-    class HelpMessageBox : public QMessageBox
-    {
-        Q_OBJECT
-
-    public:
-        HelpMessageBox(QWidget *parent = 0);
-
-        /** Show message box or print help message to standard output, based on operating system. */
-        void showOrPrint();
-
-        /** Print help message to console */
-        void printToConsole();
-
-    private:
-        QString header;
-        QString coreOptions;
-        QString uiOptions;
-    };
 
 } // namespace GUIUtil
 

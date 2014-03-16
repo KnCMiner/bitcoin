@@ -14,6 +14,10 @@
 
 class CTransaction;
 
+/** No amount larger than this (in satoshi) is valid */
+static const int64_t MAX_MONEY = 21000000 * COIN;
+inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
+
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
 class COutPoint
 {
@@ -50,11 +54,11 @@ public:
 class CInPoint
 {
 public:
-    CTransaction* ptx;
+    const CTransaction* ptx;
     unsigned int n;
 
     CInPoint() { SetNull(); }
-    CInPoint(CTransaction* ptxIn, unsigned int nIn) { ptx = ptxIn; n = nIn; }
+    CInPoint(const CTransaction* ptxIn, unsigned int nIn) { ptx = ptxIn; n = nIn; }
     void SetNull() { ptx = NULL; n = (unsigned int) -1; }
     bool IsNull() const { return (ptx == NULL && n == (unsigned int) -1); }
 };
@@ -152,8 +156,8 @@ public:
         // to spend something, then we consider it dust.
         // A typical txout is 34 bytes big, and will
         // need a CTxIn of at least 148 bytes to spend,
-        // so dust is a txout less than 54 uBTC
-        // (5460 satoshis) with default nMinRelayTxFee
+        // so dust is a txout less than 546 satoshis 
+        // with default nMinRelayTxFee.
         return ((nValue*1000)/(3*((int)GetSerializeSize(SER_DISK,0)+148)) < nMinRelayTxFee);
     }
 
@@ -216,6 +220,14 @@ public:
 
     uint256 GetHash() const;
     bool IsNewerThan(const CTransaction& old) const;
+
+    // Return sum of txouts.
+    int64_t GetValueOut() const;
+    // GetValueIn() is a method on CCoinsViewCache, because
+    // inputs must be known to compute value in.
+
+    // Compute priority, given priority of inputs and (optionally) tx size
+    double ComputePriority(double dPriorityInputs, unsigned int nTxSize=0) const;
 
     bool IsCoinBase() const
     {

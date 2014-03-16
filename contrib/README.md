@@ -13,8 +13,8 @@ This is a 'getwork' CPU mining client for Bitcoin. It is pure-python, and theref
 Use the raw transactions API to send coins received on a particular
 address (or addresses).
 
-### [Wallet Tools](/contrib/wallettools) ###
-Contains a wallet change password and unlock script. Used to prevent users from having to enter their password as a command-line argument.
+### WalletTools
+Removed. Please see [/contrib/bitrpc](/contrib/bitrpc).
 
 Repository Tools
 ---------------------
@@ -51,4 +51,8 @@ tests each pull and when master is tested using jenkins.
 
 ### [Verify SF Binaries](/contrib/verifysfbinaries) ###
 This script attempts to download and verify the signature file SHA256SUMS.asc from SourceForge.
+
+### [Developer tools](/contrib/devtools) ###
+Specific tools for developers working on this repository.
+Contains the script `github-merge.sh` for merging github pull requests securely and signing them using GPG.
 
