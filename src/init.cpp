@@ -480,7 +480,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     nMaxOutbound = std::min(nMaxOutbound, nMaxConnections);
 
     // Limit number of blocks that may be requested in one go.
-    nMaxGetBlock = GetArg("-limitgetblock", 200);
+    nMaxGetBlock = GetArg("-limitgetblock", 500);
 
     // ********************************************************* Step 3: parameter-to-internal-flags
 
