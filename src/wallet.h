@@ -27,6 +27,9 @@
 extern int64_t nTransactionFee;
 extern bool bSpendZeroConfChange;
 
+// -paytxfee will warn if called with a higher fee than this amount (in satoshis) per KB
+static const int nHighTransactionFeeWarning = 0.01 * COIN;
+
 class CAccountingEntry;
 class CCoinControl;
 class COutput;
@@ -388,6 +391,9 @@ public:
      */
     boost::signals2::signal<void (CWallet *wallet, const uint256 &hashTx,
             ChangeType status)> NotifyTransactionChanged;
+
+    /** Show progress e.g. for rescan */
+    boost::signals2::signal<void (const std::string &title, int nProgress)> ShowProgress;
 };
 
 /** A key allocated from the key pool. */
@@ -620,9 +626,10 @@ public:
             return nAvailableCreditCached;
 
         int64_t nCredit = 0;
+        uint256 hashTx = GetHash();
         for (unsigned int i = 0; i < vout.size(); i++)
         {
-            if (!pwallet->IsSpent(GetHash(), i))
+            if (!pwallet->IsSpent(hashTx, i))
             {
                 const CTxOut &txout = vout[i];
                 nCredit += pwallet->GetCredit(txout);

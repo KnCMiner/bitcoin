@@ -7,8 +7,8 @@ AM_CPPFLAGS += -I$(top_srcdir)/src \
   $(QR_CFLAGS)
 bin_PROGRAMS = bitcoin-qt
 noinst_LIBRARIES = libbitcoinqt.a
-SUBDIRS = $(BUILD_TEST_QT)
-DIST_SUBDIRS = test
+SUBDIRS = . $(BUILD_TEST_QT)
+DIST_SUBDIRS = . test
 
 # bitcoin qt core #
 QT_TS = \
@@ -276,7 +276,6 @@ BITCOIN_QT_CPP = \
   qvalidatedlineedit.cpp \
   qvaluecombobox.cpp \
   rpcconsole.cpp \
-  signverifymessagedialog.cpp \
   splashscreen.cpp \
   trafficgraphwidget.cpp \
   utilitydialog.cpp
@@ -298,6 +297,7 @@ BITCOIN_QT_CPP += \
   recentrequeststablemodel.cpp \
   sendcoinsdialog.cpp \
   sendcoinsentry.cpp \
+  signverifymessagedialog.cpp \
   transactiondesc.cpp \
   transactiondescdialog.cpp \
   transactionfilterproxy.cpp \
