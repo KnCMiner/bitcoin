@@ -6,12 +6,13 @@
 // Unit tests for canonical signatures
 //
 
-
-
-#include "script.h"
-#include "util.h"
 #include "data/sig_noncanonical.json.h"
 #include "data/sig_canonical.json.h"
+#include "key.h"
+#include "random.h"
+#include "script/interpreter.h"
+#include "util.h"
+#include "utilstrencodings.h"
 
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
@@ -20,7 +21,6 @@
 
 using namespace std;
 using namespace json_spirit;
-
 
 // In script_tests.cpp
 extern Array read_json(const std::string& jsondata);
@@ -90,6 +90,23 @@ BOOST_AUTO_TEST_CASE(script_noncanon)
             BOOST_CHECK_MESSAGE(!IsCanonicalSignature(sig, SCRIPT_VERIFY_STRICTENC), test);
             BOOST_CHECK_MESSAGE(!IsCanonicalSignature_OpenSSL(sig), test);
         }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(script_signstrict)
+{
+    for (int i=0; i<100; i++) {
+        CKey key;
+        key.MakeNewKey(i & 1);
+        std::vector<unsigned char> sig;
+        uint256 hash = GetRandHash();
+
+        BOOST_CHECK(key.Sign(hash, sig)); // Generate a random signature.
+        BOOST_CHECK(key.GetPubKey().Verify(hash, sig)); // Check it.
+        sig.push_back(0x01); // Append a sighash type.
+
+        BOOST_CHECK(IsCanonicalSignature(sig, SCRIPT_VERIFY_STRICTENC | SCRIPT_VERIFY_LOW_S));
+        BOOST_CHECK(IsCanonicalSignature_OpenSSL(sig));
     }
 }
 

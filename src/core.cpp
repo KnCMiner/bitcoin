@@ -5,26 +5,23 @@
 
 #include "core.h"
 
-#include "util.h"
+#include "tinyformat.h"
+
+#include <boost/foreach.hpp>
 
 std::string COutPoint::ToString() const
 {
     return strprintf("COutPoint(%s, %u)", hash.ToString().substr(0,10), n);
 }
 
-void COutPoint::print() const
-{
-    LogPrintf("%s\n", ToString());
-}
-
-CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, unsigned int nSequenceIn)
+CTxIn::CTxIn(COutPoint prevoutIn, CScript scriptSigIn, uint32_t nSequenceIn)
 {
     prevout = prevoutIn;
     scriptSig = scriptSigIn;
     nSequence = nSequenceIn;
 }
 
-CTxIn::CTxIn(uint256 hashPrevTx, unsigned int nOut, CScript scriptSigIn, unsigned int nSequenceIn)
+CTxIn::CTxIn(uint256 hashPrevTx, uint32_t nOut, CScript scriptSigIn, uint32_t nSequenceIn)
 {
     prevout = COutPoint(hashPrevTx, nOut);
     scriptSig = scriptSigIn;
@@ -46,12 +43,7 @@ std::string CTxIn::ToString() const
     return str;
 }
 
-void CTxIn::print() const
-{
-    LogPrintf("%s\n", ToString());
-}
-
-CTxOut::CTxOut(int64_t nValueIn, CScript scriptPubKeyIn)
+CTxOut::CTxOut(const CAmount& nValueIn, CScript scriptPubKeyIn)
 {
     nValue = nValueIn;
     scriptPubKey = scriptPubKeyIn;
@@ -67,48 +59,60 @@ std::string CTxOut::ToString() const
     return strprintf("CTxOut(nValue=%d.%08d, scriptPubKey=%s)", nValue / COIN, nValue % COIN, scriptPubKey.ToString().substr(0,30));
 }
 
-void CTxOut::print() const
+CFeeRate::CFeeRate(const CAmount& nFeePaid, size_t nSize)
 {
-    LogPrintf("%s\n", ToString());
+    if (nSize > 0)
+        nSatoshisPerK = nFeePaid*1000/nSize;
+    else
+        nSatoshisPerK = 0;
 }
 
-uint256 CTransaction::GetHash() const
+CAmount CFeeRate::GetFee(size_t nSize) const
+{
+    CAmount nFee = nSatoshisPerK*nSize / 1000;
+
+    if (nFee == 0 && nSatoshisPerK > 0)
+        nFee = nSatoshisPerK;
+
+    return nFee;
+}
+
+std::string CFeeRate::ToString() const
+{
+    return strprintf("%d.%08d BTC/kB", nSatoshisPerK / COIN, nSatoshisPerK % COIN);
+}
+
+CMutableTransaction::CMutableTransaction() : nVersion(CTransaction::CURRENT_VERSION), nLockTime(0) {}
+CMutableTransaction::CMutableTransaction(const CTransaction& tx) : nVersion(tx.nVersion), vin(tx.vin), vout(tx.vout), nLockTime(tx.nLockTime) {}
+
+uint256 CMutableTransaction::GetHash() const
 {
     return SerializeHash(*this);
 }
 
-bool CTransaction::IsNewerThan(const CTransaction& old) const
+void CTransaction::UpdateHash() const
 {
-    if (vin.size() != old.vin.size())
-        return false;
-    for (unsigned int i = 0; i < vin.size(); i++)
-        if (vin[i].prevout != old.vin[i].prevout)
-            return false;
-
-    bool fNewer = false;
-    unsigned int nLowest = std::numeric_limits<unsigned int>::max();
-    for (unsigned int i = 0; i < vin.size(); i++)
-    {
-        if (vin[i].nSequence != old.vin[i].nSequence)
-        {
-            if (vin[i].nSequence <= nLowest)
-            {
-                fNewer = false;
-                nLowest = vin[i].nSequence;
-            }
-            if (old.vin[i].nSequence < nLowest)
-            {
-                fNewer = true;
-                nLowest = old.vin[i].nSequence;
-            }
-        }
-    }
-    return fNewer;
+    *const_cast<uint256*>(&hash) = SerializeHash(*this);
 }
 
-int64_t CTransaction::GetValueOut() const
+CTransaction::CTransaction() : hash(0), nVersion(CTransaction::CURRENT_VERSION), vin(), vout(), nLockTime(0) { }
+
+CTransaction::CTransaction(const CMutableTransaction &tx) : nVersion(tx.nVersion), vin(tx.vin), vout(tx.vout), nLockTime(tx.nLockTime) {
+    UpdateHash();
+}
+
+CTransaction& CTransaction::operator=(const CTransaction &tx) {
+    *const_cast<int*>(&nVersion) = tx.nVersion;
+    *const_cast<std::vector<CTxIn>*>(&vin) = tx.vin;
+    *const_cast<std::vector<CTxOut>*>(&vout) = tx.vout;
+    *const_cast<unsigned int*>(&nLockTime) = tx.nLockTime;
+    *const_cast<uint256*>(&hash) = tx.hash;
+    return *this;
+}
+
+CAmount CTransaction::GetValueOut() const
 {
-    int64_t nValueOut = 0;
+    CAmount nValueOut = 0;
     BOOST_FOREACH(const CTxOut& txout, vout)
     {
         nValueOut += txout.nValue;
@@ -120,6 +124,14 @@ int64_t CTransaction::GetValueOut() const
 
 double CTransaction::ComputePriority(double dPriorityInputs, unsigned int nTxSize) const
 {
+    nTxSize = CalculateModifiedSize(nTxSize);
+    if (nTxSize == 0) return 0.0;
+
+    return dPriorityInputs / nTxSize;
+}
+
+unsigned int CTransaction::CalculateModifiedSize(unsigned int nTxSize) const
+{
     // In order to avoid disincentivizing cleaning up the UTXO set we don't count
     // the constant overhead for each txin and up to 110 bytes of scriptSig (which
     // is enough to cover a compressed pubkey p2sh redemption) for priority.
@@ -127,20 +139,20 @@ double CTransaction::ComputePriority(double dPriorityInputs, unsigned int nTxSiz
     // risk encouraging people to create junk outputs to redeem later.
     if (nTxSize == 0)
         nTxSize = ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION);
+
     BOOST_FOREACH(const CTxIn& txin, vin)
     {
         unsigned int offset = 41U + std::min(110U, (unsigned int)txin.scriptSig.size());
         if (nTxSize > offset)
             nTxSize -= offset;
     }
-    if (nTxSize == 0) return 0.0;
-    return dPriorityInputs / nTxSize;
+    return nTxSize;
 }
 
 std::string CTransaction::ToString() const
 {
     std::string str;
-    str += strprintf("CTransaction(hash=%s, ver=%d, vin.size=%"PRIszu", vout.size=%"PRIszu", nLockTime=%u)\n",
+    str += strprintf("CTransaction(hash=%s, ver=%d, vin.size=%u, vout.size=%u, nLockTime=%u)\n",
         GetHash().ToString().substr(0,10),
         nVersion,
         vin.size(),
@@ -151,11 +163,6 @@ std::string CTransaction::ToString() const
     for (unsigned int i = 0; i < vout.size(); i++)
         str += "    " + vout[i].ToString() + "\n";
     return str;
-}
-
-void CTransaction::print() const
-{
-    LogPrintf("%s", ToString());
 }
 
 // Amount compression:
@@ -217,21 +224,65 @@ uint256 CBlockHeader::GetHash() const
     return Hash(BEGIN(nVersion), END(nNonce));
 }
 
-uint256 CBlock::BuildMerkleTree() const
+uint256 CBlock::BuildMerkleTree(bool* fMutated) const
 {
+    /* WARNING! If you're reading this because you're learning about crypto
+       and/or designing a new system that will use merkle trees, keep in mind
+       that the following merkle tree algorithm has a serious flaw related to
+       duplicate txids, resulting in a vulnerability (CVE-2012-2459).
+
+       The reason is that if the number of hashes in the list at a given time
+       is odd, the last one is duplicated before computing the next level (which
+       is unusual in Merkle trees). This results in certain sequences of
+       transactions leading to the same merkle root. For example, these two
+       trees:
+
+                    A               A
+                  /  \            /   \
+                B     C         B       C
+               / \    |        / \     / \
+              D   E   F       D   E   F   F
+             / \ / \ / \     / \ / \ / \ / \
+             1 2 3 4 5 6     1 2 3 4 5 6 5 6
+
+       for transaction lists [1,2,3,4,5,6] and [1,2,3,4,5,6,5,6] (where 5 and
+       6 are repeated) result in the same root hash A (because the hash of both
+       of (F) and (F,F) is C).
+
+       The vulnerability results from being able to send a block with such a
+       transaction list, with the same merkle root, and the same block hash as
+       the original without duplication, resulting in failed validation. If the
+       receiving node proceeds to mark that block as permanently invalid
+       however, it will fail to accept further unmodified (and thus potentially
+       valid) versions of the same block. We defend against this by detecting
+       the case where we would hash two identical hashes at the end of the list
+       together, and treating that identically to the block having an invalid
+       merkle root. Assuming no double-SHA256 collisions, this will detect all
+       known ways of changing the transactions without affecting the merkle
+       root.
+    */
     vMerkleTree.clear();
+    vMerkleTree.reserve(vtx.size() * 2 + 16); // Safe upper bound for the number of total nodes.
     BOOST_FOREACH(const CTransaction& tx, vtx)
         vMerkleTree.push_back(tx.GetHash());
     int j = 0;
+    bool mutated = false;
     for (int nSize = vtx.size(); nSize > 1; nSize = (nSize + 1) / 2)
     {
         for (int i = 0; i < nSize; i += 2)
         {
             int i2 = std::min(i+1, nSize-1);
+            if (i2 == i + 1 && i2 + 1 == nSize && vMerkleTree[j+i] == vMerkleTree[j+i2]) {
+                // Two identical hashes at the end of the list at a particular level.
+                mutated = true;
+            }
             vMerkleTree.push_back(Hash(BEGIN(vMerkleTree[j+i]),  END(vMerkleTree[j+i]),
                                        BEGIN(vMerkleTree[j+i2]), END(vMerkleTree[j+i2])));
         }
         j += nSize;
+    }
+    if (fMutated) {
+        *fMutated = mutated;
     }
     return (vMerkleTree.empty() ? 0 : vMerkleTree.back());
 }
@@ -267,9 +318,10 @@ uint256 CBlock::CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMer
     return hash;
 }
 
-void CBlock::print() const
+std::string CBlock::ToString() const
 {
-    LogPrintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%"PRIszu")\n",
+    std::stringstream s;
+    s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u)\n",
         GetHash().ToString(),
         nVersion,
         hashPrevBlock.ToString(),
@@ -278,11 +330,11 @@ void CBlock::print() const
         vtx.size());
     for (unsigned int i = 0; i < vtx.size(); i++)
     {
-        LogPrintf("  ");
-        vtx[i].print();
+        s << "  " << vtx[i].ToString() << "\n";
     }
-    LogPrintf("  vMerkleTree: ");
+    s << "  vMerkleTree: ";
     for (unsigned int i = 0; i < vMerkleTree.size(); i++)
-        LogPrintf("%s ", vMerkleTree[i].ToString());
-    LogPrintf("\n");
+        s << " " << vMerkleTree[i].ToString();
+    s << "\n";
+    return s.str();
 }

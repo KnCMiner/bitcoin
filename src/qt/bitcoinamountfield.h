@@ -5,10 +5,13 @@
 #ifndef BITCOINAMOUNTFIELD_H
 #define BITCOINAMOUNTFIELD_H
 
+#include "amount.h"
+
 #include <QWidget>
 
+class AmountSpinBox;
+
 QT_BEGIN_NAMESPACE
-class QDoubleSpinBox;
 class QValueComboBox;
 QT_END_NAMESPACE
 
@@ -18,16 +21,16 @@ class BitcoinAmountField: public QWidget
 {
     Q_OBJECT
 
-    Q_PROPERTY(qint64 value READ value WRITE setValue NOTIFY textChanged USER true)
+    Q_PROPERTY(CAmount value READ value WRITE setValue NOTIFY valueChanged USER true)
 
 public:
     explicit BitcoinAmountField(QWidget *parent = 0);
 
-    qint64 value(bool *valid=0) const;
-    void setValue(qint64 value);
+    CAmount value(bool *value=0) const;
+    void setValue(const CAmount& value);
 
     /** Set single step in satoshis **/
-    void setSingleStep(qint64 step);
+    void setSingleStep(const CAmount& step);
 
     /** Make read-only **/
     void setReadOnly(bool fReadOnly);
@@ -49,20 +52,15 @@ public:
     QWidget *setupTabChain(QWidget *prev);
 
 signals:
-    void textChanged();
+    void valueChanged();
 
 protected:
     /** Intercept focus-in event and ',' key presses */
     bool eventFilter(QObject *object, QEvent *event);
 
 private:
-    QDoubleSpinBox *amount;
+    AmountSpinBox *amount;
     QValueComboBox *unit;
-    int currentUnit;
-    qint64 nSingleStep;
-
-    void setText(const QString &text);
-    QString text() const;
 
 private slots:
     void unitChanged(int idx);

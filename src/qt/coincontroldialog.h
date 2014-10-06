@@ -5,6 +5,8 @@
 #ifndef COINCONTROLDIALOG_H
 #define COINCONTROLDIALOG_H
 
+#include "amount.h"
+
 #include <QAbstractButton>
 #include <QAction>
 #include <QDialog>
@@ -14,11 +16,14 @@
 #include <QString>
 #include <QTreeWidgetItem>
 
+class WalletModel;
+
+class CCoinControl;
+class CTxMemPool;
+
 namespace Ui {
     class CoinControlDialog;
 }
-class WalletModel;
-class CCoinControl;
 
 class CoinControlDialog : public QDialog
 {
@@ -32,9 +37,9 @@ public:
 
     // static because also called from sendcoinsdialog
     static void updateLabels(WalletModel*, QDialog*);
-    static QString getPriorityLabel(double);
+    static QString getPriorityLabel(const CTxMemPool& pool, double);
 
-    static QList<qint64> payAmounts;
+    static QList<CAmount> payAmounts;
     static CCoinControl *coinControl;
 
 private:

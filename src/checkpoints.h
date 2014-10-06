@@ -15,18 +15,19 @@ class uint256;
  */
 namespace Checkpoints
 {
-    // Returns true if block passes checkpoint checks
-    bool CheckBlock(int nHeight, const uint256& hash);
+// Returns true if block passes checkpoint checks
+bool CheckBlock(int nHeight, const uint256& hash);
 
-    // Return conservative estimate of total number of blocks, 0 if unknown
-    int GetTotalBlocksEstimate();
+// Return conservative estimate of total number of blocks, 0 if unknown
+int GetTotalBlocksEstimate();
 
-    // Returns last CBlockIndex* in mapBlockIndex that is a checkpoint
-    CBlockIndex* GetLastCheckpoint(const std::map<uint256, CBlockIndex*>& mapBlockIndex);
+// Returns last CBlockIndex* in mapBlockIndex that is a checkpoint
+CBlockIndex* GetLastCheckpoint();
 
-    double GuessVerificationProgress(CBlockIndex *pindex, bool fSigchecks = true);
+double GuessVerificationProgress(CBlockIndex* pindex, bool fSigchecks = true);
 
-    extern bool fEnabled;
-}
+extern bool fEnabled;
 
-#endif
+} //namespace Checkpoints
+
+#endif // BITCOIN_CHECKPOINT_H

@@ -5,6 +5,8 @@
 #ifndef TRANSACTIONFILTERPROXY_H
 #define TRANSACTIONFILTERPROXY_H
 
+#include "amount.h"
+
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 
@@ -25,13 +27,21 @@ public:
 
     static quint32 TYPE(int type) { return 1<<type; }
 
+    enum WatchOnlyFilter
+    {
+        WatchOnlyFilter_All,
+        WatchOnlyFilter_Yes,
+        WatchOnlyFilter_No
+    };
+
     void setDateRange(const QDateTime &from, const QDateTime &to);
     void setAddressPrefix(const QString &addrPrefix);
     /**
       @note Type filter takes a bit field created with TYPE() or ALL_TYPES
      */
     void setTypeFilter(quint32 modes);
-    void setMinAmount(qint64 minimum);
+    void setMinAmount(const CAmount& minimum);
+    void setWatchOnlyFilter(WatchOnlyFilter filter);
 
     /** Set maximum number of rows returned, -1 if unlimited. */
     void setLimit(int limit);
@@ -49,7 +59,8 @@ private:
     QDateTime dateTo;
     QString addrPrefix;
     quint32 typeFilter;
-    qint64 minAmount;
+    WatchOnlyFilter watchOnlyFilter;
+    CAmount minAmount;
     int limitRows;
     bool showInactive;
 };

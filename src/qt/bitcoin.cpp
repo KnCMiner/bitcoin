@@ -3,7 +3,7 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "bitcoin-config.h"
+#include "config/bitcoin-config.h"
 #endif
 
 #include "bitcoingui.h"
@@ -15,6 +15,8 @@
 #include "optionsmodel.h"
 #include "splashscreen.h"
 #include "utilitydialog.h"
+#include "winshutdownmonitor.h"
+
 #ifdef ENABLE_WALLET
 #include "paymentserver.h"
 #include "walletmodel.h"
@@ -25,6 +27,7 @@
 #include "rpcserver.h"
 #include "ui_interface.h"
 #include "util.h"
+
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #endif
@@ -32,14 +35,17 @@
 #include <stdint.h>
 
 #include <boost/filesystem/operations.hpp>
+#include <boost/thread.hpp>
+
 #include <QApplication>
+#include <QDebug>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QMessageBox>
 #include <QSettings>
+#include <QThread>
 #include <QTimer>
 #include <QTranslator>
-#include <QThread>
 
 #if defined(QT_STATICPLUGIN)
 #include <QtPlugin>
@@ -51,7 +57,13 @@ Q_IMPORT_PLUGIN(qkrcodecs)
 Q_IMPORT_PLUGIN(qtaccessiblewidgets)
 #else
 Q_IMPORT_PLUGIN(AccessibleFactory)
+#if defined(QT_QPA_PLATFORM_XCB)
+Q_IMPORT_PLUGIN(QXcbIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_WINDOWS)
 Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
+#elif defined(QT_QPA_PLATFORM_COCOA)
+Q_IMPORT_PLUGIN(QCocoaIntegrationPlugin);
+#endif
 #endif
 #endif
 
@@ -61,6 +73,7 @@ Q_IMPORT_PLUGIN(QWindowsIntegrationPlugin);
 
 // Declare meta types used for QMetaObject::invokeMethod
 Q_DECLARE_METATYPE(bool*)
+Q_DECLARE_METATYPE(CAmount)
 
 static void InitMessage(const std::string &message)
 {
@@ -125,15 +138,15 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
 #if QT_VERSION < 0x050000
 void DebugMessageHandler(QtMsgType type, const char *msg)
 {
-    Q_UNUSED(type);
-    LogPrint("qt", "GUI: %s\n", msg);
+    const char *category = (type == QtDebugMsg) ? "qt" : NULL;
+    LogPrint(category, "GUI: %s\n", msg);
 }
 #else
 void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg)
 {
-    Q_UNUSED(type);
     Q_UNUSED(context);
-    LogPrint("qt", "GUI: %s\n", qPrintable(msg));
+    const char *category = (type == QtDebugMsg) ? "qt" : NULL;
+    LogPrint(category, "GUI: %s\n", msg.toStdString());
 }
 #endif
 
@@ -189,6 +202,9 @@ public:
     /// Get process return value
     int getReturnValue() { return returnValue; }
 
+    /// Get window identifier of QMainWindow (BitcoinGUI)
+    WId getMainWinId() const;
+
 public slots:
     void initializeResult(int retval);
     void shutdownResult(int retval);
@@ -233,7 +249,7 @@ void BitcoinCore::initialize()
 {
     try
     {
-        LogPrintf("Running AppInit2 in thread\n");
+        qDebug() << __func__ << ": Running AppInit2 in thread";
         int rv = AppInit2(threadGroup);
         if(rv)
         {
@@ -254,11 +270,11 @@ void BitcoinCore::shutdown()
 {
     try
     {
-        LogPrintf("Running Shutdown in thread\n");
+        qDebug() << __func__ << ": Running Shutdown in thread";
         threadGroup.interrupt_all();
         threadGroup.join_all();
         Shutdown();
-        LogPrintf("Shutdown finished\n");
+        qDebug() << __func__ << ": Shutdown finished";
         emit shutdownResult(1);
     } catch (std::exception& e) {
         handleRunawayException(&e);
@@ -281,15 +297,17 @@ BitcoinApplication::BitcoinApplication(int &argc, char **argv):
     returnValue(0)
 {
     setQuitOnLastWindowClosed(false);
-    startThread();
 }
 
 BitcoinApplication::~BitcoinApplication()
 {
-    LogPrintf("Stopping thread\n");
-    emit stopThread();
-    coreThread->wait();
-    LogPrintf("Stopped thread\n");
+    if(coreThread)
+    {
+        qDebug() << __func__ << ": Stopping thread";
+        emit stopThread();
+        coreThread->wait();
+        qDebug() << __func__ << ": Stopped thread";
+    }
 
     delete window;
     window = 0;
@@ -324,7 +342,9 @@ void BitcoinApplication::createWindow(bool isaTestNet)
 
 void BitcoinApplication::createSplashScreen(bool isaTestNet)
 {
-    SplashScreen *splash = new SplashScreen(QPixmap(), 0, isaTestNet);
+    SplashScreen *splash = new SplashScreen(0, isaTestNet);
+    // We don't hold a direct pointer to the splash screen after creation, so use
+    // Qt::WA_DeleteOnClose to make sure that the window will be deleted eventually.
     splash->setAttribute(Qt::WA_DeleteOnClose);
     splash->show();
     connect(this, SIGNAL(splashFinished(QWidget*)), splash, SLOT(slotFinish(QWidget*)));
@@ -332,6 +352,8 @@ void BitcoinApplication::createSplashScreen(bool isaTestNet)
 
 void BitcoinApplication::startThread()
 {
+    if(coreThread)
+        return;
     coreThread = new QThread(this);
     BitcoinCore *executor = new BitcoinCore();
     executor->moveToThread(coreThread);
@@ -351,13 +373,15 @@ void BitcoinApplication::startThread()
 
 void BitcoinApplication::requestInitialize()
 {
-    LogPrintf("Requesting initialize\n");
+    qDebug() << __func__ << ": Requesting initialize";
+    startThread();
     emit requestedInitialize();
 }
 
 void BitcoinApplication::requestShutdown()
 {
-    LogPrintf("Requesting shutdown\n");
+    qDebug() << __func__ << ": Requesting shutdown";
+    startThread();
     window->hide();
     window->setClientModel(0);
     pollShutdownTimer->stop();
@@ -379,7 +403,7 @@ void BitcoinApplication::requestShutdown()
 
 void BitcoinApplication::initializeResult(int retval)
 {
-    LogPrintf("Initialization result: %i\n", retval);
+    qDebug() << __func__ << ": Initialization result: " << retval;
     // Set exit result: 0 if successful, 1 if failure
     returnValue = retval ? 0 : 1;
     if(retval)
@@ -389,8 +413,6 @@ void BitcoinApplication::initializeResult(int retval)
         paymentServer->setOptionsModel(optionsModel);
 #endif
 
-        emit splashFinished(window);
-
         clientModel = new ClientModel(optionsModel);
         window->setClientModel(clientModel);
 
@@ -399,8 +421,8 @@ void BitcoinApplication::initializeResult(int retval)
         {
             walletModel = new WalletModel(pwalletMain, optionsModel);
 
-            window->addWallet("~Default", walletModel);
-            window->setCurrentWallet("~Default");
+            window->addWallet(BitcoinGUI::DEFAULT_WALLET, walletModel);
+            window->setCurrentWallet(BitcoinGUI::DEFAULT_WALLET);
 
             connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
                              paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
@@ -416,6 +438,8 @@ void BitcoinApplication::initializeResult(int retval)
         {
             window->show();
         }
+        emit splashFinished(window);
+
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
         // bitcoin: URIs or payment requests:
@@ -434,7 +458,7 @@ void BitcoinApplication::initializeResult(int retval)
 
 void BitcoinApplication::shutdownResult(int retval)
 {
-    LogPrintf("Shutdown result: %i\n", retval);
+    qDebug() << __func__ << ": Shutdown result: " << retval;
     quit(); // Exit main loop after shutdown finished
 }
 
@@ -444,9 +468,19 @@ void BitcoinApplication::handleRunawayException(const QString &message)
     ::exit(1);
 }
 
+WId BitcoinApplication::getMainWinId() const
+{
+    if (!window)
+        return 0;
+
+    return window->winId();
+}
+
 #ifndef BITCOIN_QT_TEST
 int main(int argc, char *argv[])
 {
+    SetupEnvironment();
+
     /// 1. Parse command-line options. These take precedence over anything else.
     // Command-line options take precedence:
     ParseParameters(argc, argv);
@@ -461,6 +495,10 @@ int main(int argc, char *argv[])
 #endif
 
     Q_INIT_RESOURCE(bitcoin);
+    Q_INIT_RESOURCE(bitcoin_locale);
+
+    GUIUtil::SubstituteFonts();
+
     BitcoinApplication app(argc, argv);
 #if QT_VERSION > 0x050100
     // Generate high-dpi pixmaps
@@ -472,6 +510,9 @@ int main(int argc, char *argv[])
 
     // Register meta types used for QMetaObject::invokeMethod
     qRegisterMetaType< bool* >();
+    //   Need to pass name here as CAmount is a typedef (see http://qt-project.org/doc/qt-5/qmetatype.html#qRegisterMetaType)
+    //   IMPORTANT if it is no longer a typedef use the normal variant above
+    qRegisterMetaType< CAmount >("CAmount");
 
     /// 3. Application identification
     // must be set before OptionsModel is initialized or translations are loaded,
@@ -488,9 +529,9 @@ int main(int argc, char *argv[])
 
     // Show help message immediately after parsing command-line options (for "-lang") and setting locale,
     // but before showing splash screen.
-    if (mapArgs.count("-?") || mapArgs.count("--help"))
+    if (mapArgs.count("-?") || mapArgs.count("-help") || mapArgs.count("-version"))
     {
-        HelpMessageDialog help(NULL);
+        HelpMessageDialog help(NULL, mapArgs.count("-version"));
         help.showOrPrint();
         return 1;
     }
@@ -503,14 +544,14 @@ int main(int argc, char *argv[])
     /// - Do not call GetDataDir(true) before this step finishes
     if (!boost::filesystem::is_directory(GetDataDir(false)))
     {
-        QMessageBox::critical(0, QObject::tr("Bitcoin"),
+        QMessageBox::critical(0, QObject::tr("Bitcoin Core"),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(mapArgs["-datadir"])));
         return 1;
     }
     try {
         ReadConfigFile(mapArgs, mapMultiArgs);
     } catch(std::exception &e) {
-        QMessageBox::critical(0, QObject::tr("Bitcoin"),
+        QMessageBox::critical(0, QObject::tr("Bitcoin Core"),
                               QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
         return false;
     }
@@ -523,7 +564,7 @@ int main(int argc, char *argv[])
 
     // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
     if (!SelectParamsFromCommandLine()) {
-        QMessageBox::critical(0, QObject::tr("Bitcoin"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
+        QMessageBox::critical(0, QObject::tr("Bitcoin Core"), QObject::tr("Error: Invalid combination of -regtest and -testnet."));
         return 1;
     }
 #ifdef ENABLE_WALLET
@@ -531,7 +572,7 @@ int main(int argc, char *argv[])
     if (!PaymentServer::ipcParseCommandLine(argc, argv))
         exit(0);
 #endif
-    bool isaTestNet = Params().NetworkID() != CChainParams::MAIN;
+    bool isaTestNet = Params().NetworkID() != CBaseChainParams::MAIN;
     // Allow for separate UI settings for testnets
     if (isaTestNet)
         QApplication::setApplicationName(QAPP_APP_NAME_TESTNET);
@@ -558,10 +599,15 @@ int main(int argc, char *argv[])
     /// 9. Main GUI initialization
     // Install global event filter that makes sure that long tooltips can be word-wrapped
     app.installEventFilter(new GUIUtil::ToolTipToRichTextFilter(TOOLTIP_WRAP_THRESHOLD, &app));
-    // Install qDebug() message handler to route to debug.log
 #if QT_VERSION < 0x050000
+    // Install qDebug() message handler to route to debug.log
     qInstallMsgHandler(DebugMessageHandler);
 #else
+#if defined(Q_OS_WIN)
+    // Install global event filter for processing Windows session related Windows messages (WM_QUERYENDSESSION and WM_ENDSESSION)
+    qApp->installNativeEventFilter(new WinShutdownMonitor());
+#endif
+    // Install qDebug() message handler to route to debug.log
     qInstallMessageHandler(DebugMessageHandler);
 #endif
     // Load GUI settings from QSettings
@@ -577,6 +623,9 @@ int main(int argc, char *argv[])
     {
         app.createWindow(isaTestNet);
         app.requestInitialize();
+#if defined(Q_OS_WIN) && QT_VERSION >= 0x050000
+        WinShutdownMonitor::registerShutdownBlockReason(QObject::tr("Bitcoin Core didn't yet exit safely..."), (HWND)app.getMainWinId());
+#endif
         app.exec();
         app.requestShutdown();
         app.exec();

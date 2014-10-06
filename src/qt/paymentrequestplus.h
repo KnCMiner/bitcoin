@@ -24,7 +24,7 @@ public:
     PaymentRequestPlus() { }
 
     bool parse(const QByteArray& data);
-    bool SerializeToString(string* output) const;
+    bool SerializeToString(std::string* output) const;
 
     bool IsInitialized() const;
     QString getPKIType() const;
@@ -33,7 +33,7 @@ public:
     bool getMerchant(X509_STORE* certStore, QString& merchant) const;
 
     // Returns list of outputs, amount
-    QList<std::pair<CScript,qint64> > getPayTo() const;
+    QList<std::pair<CScript,CAmount> > getPayTo() const;
 
     const payments::PaymentDetails& getDetails() const { return details; }
 

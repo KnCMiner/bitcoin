@@ -1,6 +1,7 @@
 from jsonrpc import ServiceProxy
 import sys
 import string
+import getpass
 
 # ===== BEGIN USER SETTINGS =====
 # if you do not set these you will be prompted for a password for every command
@@ -19,6 +20,18 @@ if cmd == "backupwallet":
     try:
         path = raw_input("Enter destination path/filename: ")
         print access.backupwallet(path)
+    except:
+        print "\n---An error occurred---\n"
+        
+elif cmd == "encryptwallet":
+    try:
+        pwd = getpass.getpass(prompt="Enter passphrase: ")
+        pwd2 = getpass.getpass(prompt="Repeat passphrase: ")
+        if pwd == pwd2:
+            access.encryptwallet(pwd)
+            print "\n---Wallet encrypted. Server stopping, restart to run with encrypted wallet---\n"
+        else:
+            print "\n---Passphrases do not match---\n"
     except:
         print "\n---An error occurred---\n"
 
@@ -302,7 +315,7 @@ elif cmd == "validateaddress":
 
 elif cmd == "walletpassphrase":
     try:
-        pwd = raw_input("Enter wallet passphrase: ")
+        pwd = getpass.getpass(prompt="Enter wallet passphrase: ")
         access.walletpassphrase(pwd, 60)
         print "\n---Wallet unlocked---\n"
     except:
@@ -310,8 +323,8 @@ elif cmd == "walletpassphrase":
 
 elif cmd == "walletpassphrasechange":
     try:
-        pwd = raw_input("Enter old wallet passphrase: ")
-        pwd2 = raw_input("Enter new wallet passphrase: ")
+        pwd = getpass.getpass(prompt="Enter old wallet passphrase: ")
+        pwd2 = getpass.getpass(prompt="Enter new wallet passphrase: ")
         access.walletpassphrasechange(pwd, pwd2)
         print
         print "\n---Passphrase changed---\n"
