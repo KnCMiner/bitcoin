@@ -80,7 +80,7 @@ uint64_t nLocalHostNonce = 0;
 static std::vector<ListenSocket> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = 125;
-int nMaxOutbound = 8;
+int nMaxOutbound = MAX_OUTBOUND_CONNECTIONS;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
