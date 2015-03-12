@@ -1,4 +1,4 @@
-<TS language="sq" version="2.1">
+<TS language="sq" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -163,10 +163,6 @@
         <translation>Shiriti i mjeteve</translation>
     </message>
     <message>
-        <source>[testnet]</source>
-        <translation>[testo rrjetin]</translation>
-    </message>
-    <message>
         <source>Up to date</source>
         <translation>I azhornuar</translation>
     </message>
@@ -199,10 +195,6 @@
     <message>
         <source>Amount</source>
         <translation>Sasia</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Adresë</translation>
     </message>
     <message>
         <source>Date</source>
@@ -280,10 +272,6 @@
     <message>
         <source>Form</source>
         <translation>Formilarë</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Transaksionet e fundit&lt;/b&gt;</translation>
     </message>
     </context>
 <context>

@@ -1,4 +1,4 @@
-<TS language="ja" version="2.1">
+<TS language="ja" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -70,6 +70,10 @@
         <translation>これらは支払いを送信するためのあなたの Bitcoin アドレスです。コインを送信する前に、常に額と受信アドレスを確認してください。</translation>
     </message>
     <message>
+        <source>These are your Bitcoin addresses for receiving payments. It is recommended to use a new receiving address for each transaction.</source>
+        <translation>これらは支払いを受け取るためのビットコインアドレスです。トランザクションごとに新しい受け取り用アドレスを作成することが推奨されます。</translation>
+    </message>
+    <message>
         <source>Copy &amp;Label</source>
         <translation>ラベルをコピー (&amp;L)</translation>
     </message>
@@ -89,7 +93,11 @@
         <source>Exporting Failed</source>
         <translation>エクスポート失敗</translation>
     </message>
-    </context>
+    <message>
+        <source>There was an error trying to save the address list to %1. Please try again.</source>
+        <translation>トランザクション履歴を %1 へ保存する際にエラーが発生しました。再試行してください。</translation>
+    </message>
+</context>
 <context>
     <name>AddressTableModel</name>
     <message>
@@ -174,6 +182,10 @@
     <message>
         <source>Wallet encrypted</source>
         <translation>ウォレットは暗号化されました</translation>
+    </message>
+    <message>
+        <source>Enter the new passphrase to the wallet.&lt;br/&gt;Please use a passphrase of &lt;b&gt;ten or more random characters&lt;/b&gt;, or &lt;b&gt;eight or more words&lt;/b&gt;.</source>
+        <translation>ウォレットの新しいパスフレーズを入力してください。&lt;br/&gt;&lt;b&gt;10文字以上のランダムな文字&lt;/b&gt;で構成されたものか、&lt;b&gt;8単語以上の単語&lt;/b&gt;で構成されたパスフレーズを使用してください。</translation>
     </message>
     <message>
         <source>Bitcoin will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your bitcoins from being stolen by malware infecting your computer.</source>
@@ -283,6 +295,10 @@
         <translation>URI を開く (&amp;U)...</translation>
     </message>
     <message>
+        <source>Bitcoin Core client</source>
+        <translation>Bitcoinコア クライアント</translation>
+    </message>
+    <message>
         <source>Importing blocks from disk...</source>
         <translation>ディスクからブロックをインポートしています...</translation>
     </message>
@@ -335,6 +351,10 @@
         <translation>受信 (&amp;R)</translation>
     </message>
     <message>
+        <source>Show information about Bitcoin Core</source>
+        <translation>Bitcoinコアに関する情報を表示</translation>
+    </message>
+    <message>
         <source>&amp;Show / Hide</source>
         <translation>見る/隠す (&amp;S)</translation>
     </message>
@@ -371,16 +391,20 @@
         <translation>タブツールバー</translation>
     </message>
     <message>
-        <source>[testnet]</source>
-        <translation>[testnet]</translation>
-    </message>
-    <message>
         <source>Bitcoin Core</source>
         <translation>Bitcoin のコア</translation>
     </message>
     <message>
+        <source>Request payments (generates QR codes and bitcoin: URIs)</source>
+        <translation>支払いを要求する (QRコードとbitcoin:ではじまるURIを生成する)</translation>
+    </message>
+    <message>
         <source>&amp;About Bitcoin Core</source>
         <translation>ビットコインコアについて (&amp;A)</translation>
+    </message>
+    <message>
+        <source>Show the list of used sending addresses and labels</source>
+        <translation>使用済みの送金用アドレスとラベルの一覧を表示する</translation>
     </message>
     <message>
         <source>Show the list of used receiving addresses and labels</source>
@@ -397,10 +421,6 @@
     <message>
         <source>No block source available...</source>
         <translation>利用可能なブロックがありません...</translation>
-    </message>
-    <message>
-        <source>Processed %1 blocks of transaction history.</source>
-        <translation>取引履歴の %1 ブロックを処理しました。</translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
@@ -492,6 +512,10 @@ Address: %4
 <context>
     <name>CoinControlDialog</name>
     <message>
+        <source>Coin Selection</source>
+        <translation>コイン選択</translation>
+    </message>
+    <message>
         <source>Quantity:</source>
         <translation>数量:</translation>
     </message>
@@ -532,10 +556,6 @@ Address: %4
         <translation>総額</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>アドレス</translation>
-    </message>
-    <message>
         <source>Date</source>
         <translation>日付</translation>
     </message>
@@ -566,6 +586,14 @@ Address: %4
     <message>
         <source>Copy transaction ID</source>
         <translation>取引 ID をコピー</translation>
+    </message>
+    <message>
+        <source>Lock unspent</source>
+        <translation>未使用トランザクションをロックする</translation>
+    </message>
+    <message>
+        <source>Unlock unspent</source>
+        <translation>未使用トランザクションをアンロックする</translation>
     </message>
     <message>
         <source>Copy quantity</source>
@@ -689,6 +717,10 @@ Address: %4
         <translation>バージョン</translation>
     </message>
     <message>
+        <source>About Bitcoin Core</source>
+        <translation>Bitcoinコアについて</translation>
+    </message>
+    <message>
         <source>Command-line options</source>
         <translation>コマンドライン オプション</translation>
     </message>
@@ -728,6 +760,10 @@ Address: %4
         <translation>ようこそ</translation>
     </message>
     <message>
+        <source>Welcome to Bitcoin Core.</source>
+        <translation>ようこそ！</translation>
+    </message>
+    <message>
         <source>Use the default data directory</source>
         <translation>初期値のデータ ディレクトリを使用</translation>
     </message>
@@ -743,13 +779,13 @@ Address: %4
         <source>Error</source>
         <translation>エラー</translation>
     </message>
-    <message>
-        <source>GB of free space available</source>
-        <translation>GBの利用可能な空き領域</translation>
+    <message numerus="yes">
+        <source>%n GB of free space available</source>
+        <translation><numerusform>%n GBの空き容量が利用可能</numerusform></translation>
     </message>
-    <message>
-        <source>(of %1GB needed)</source>
-        <translation>(%1GB が必要)</translation>
+    <message numerus="yes">
+        <source>(of %n GB needed)</source>
+        <translation><numerusform>(%n GB必要)</numerusform></translation>
     </message>
 </context>
 <context>
@@ -786,14 +822,6 @@ Address: %4
         <translation>メイン (&amp;M)</translation>
     </message>
     <message>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB.</source>
-        <translation>あたなの取引が早く処理されるように任意で kB 毎の取引手数料を設定します。ほとんどの取引は 1 kB です。</translation>
-    </message>
-    <message>
-        <source>Pay transaction &amp;fee</source>
-        <translation>支払う取引手数料 (&amp;f)</translation>
-    </message>
-    <message>
         <source>Automatically start Bitcoin after logging in to the system.</source>
         <translation>システムにログインした時に自動的に Bitcoin を起動します。</translation>
     </message>
@@ -808,6 +836,14 @@ Address: %4
     <message>
         <source>MB</source>
         <translation>MB</translation>
+    </message>
+    <message>
+        <source>Number of script &amp;verification threads</source>
+        <translation>スクリプト検証用スレッド数 (&amp;V)</translation>
+    </message>
+    <message>
+        <source>Accept connections from outside</source>
+        <translation>外部からの接続を許可する</translation>
     </message>
     <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
@@ -933,10 +969,6 @@ Address: %4
         <translation>表示された情報は古いかもしれません。接続が確立されると、あなたのウォレットは Bitcoin ネットワークと自動的に同期しますが、このプロセスはまだ完了していません。</translation>
     </message>
     <message>
-        <source>Wallet</source>
-        <translation>ウォレット</translation>
-    </message>
-    <message>
         <source>Your current spendable balance</source>
         <translation>あなたの利用可能残高</translation>
     </message>
@@ -961,8 +993,12 @@ Address: %4
         <translation>あなたの現在の残高</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;最近の取引&lt;/b&gt;</translation>
+        <source>Recent transactions</source>
+        <translation>最近のトランザクション</translation>
+    </message>
+    <message>
+        <source>Mined balance in watch-only addresses that has not yet matured</source>
+        <translation>ウォッチオンリーアドレスの採掘された残高のうち、成熟していないもの</translation>
     </message>
     <message>
         <source>out of sync</source>
@@ -978,6 +1014,14 @@ Address: %4
     <message>
         <source>Invalid payment address %1</source>
         <translation>支払いのアドレス「%1」は無効です</translation>
+    </message>
+    <message>
+        <source>Payment request rejected</source>
+        <translation>支払い要求は拒否されました</translation>
+    </message>
+    <message>
+        <source>Payment request has expired.</source>
+        <translation>支払いのリクエストは期限切れです</translation>
     </message>
     <message>
         <source>Payment request error</source>
@@ -1006,6 +1050,10 @@ Address: %4
 </context>
 <context>
     <name>PeerTableModel</name>
+    <message>
+        <source>User Agent</source>
+        <translation>ユーザエージェント</translation>
+    </message>
     </context>
 <context>
     <name>QObject</name>
@@ -1094,6 +1142,10 @@ Address: %4
     <message>
         <source>Current number of blocks</source>
         <translation>現在のブロック数</translation>
+    </message>
+    <message>
+        <source>User Agent</source>
+        <translation>ユーザエージェント</translation>
     </message>
     <message>
         <source>Last block time</source>
@@ -1187,12 +1239,20 @@ Address: %4
         <translation>メッセージ (&amp;M):</translation>
     </message>
     <message>
+        <source>Clear all fields of the form.</source>
+        <translation>全ての入力項目をクリア</translation>
+    </message>
+    <message>
         <source>Clear</source>
         <translation>クリア</translation>
     </message>
     <message>
         <source>Show</source>
         <translation>表示</translation>
+    </message>
+    <message>
+        <source>Remove the selected entries from the list</source>
+        <translation>リストから選択項目を削除</translation>
     </message>
     <message>
         <source>Copy label</source>
@@ -1340,6 +1400,10 @@ Address: %4
         <translation>受取人を追加 (&amp;R)</translation>
     </message>
     <message>
+        <source>Clear all fields of the form.</source>
+        <translation>全ての入力項目をクリア</translation>
+    </message>
+    <message>
         <source>Clear &amp;All</source>
         <translation>すべてクリア (&amp;A)</translation>
     </message>
@@ -1465,7 +1529,15 @@ Address: %4
 </context>
 <context>
     <name>ShutdownWindow</name>
-    </context>
+    <message>
+        <source>Bitcoin Core is shutting down...</source>
+        <translation>Bitcoin Coreをシャットダウンしています。</translation>
+    </message>
+    <message>
+        <source>Do not shut down the computer until this window disappears.</source>
+        <translation>このウィンドウが消えるまでコンピュータをシャットダウンしないで下さい。</translation>
+    </message>
+</context>
 <context>
     <name>SignVerifyMessageDialog</name>
     <message>
@@ -1988,7 +2060,11 @@ Address: %4
     </context>
 <context>
     <name>WalletFrame</name>
-    </context>
+    <message>
+        <source>No wallet has been loaded.</source>
+        <translation>ウォレットがロードされていません</translation>
+    </message>
+</context>
 <context>
     <name>WalletModel</name>
     <message>
@@ -2030,24 +2106,8 @@ Address: %4
         <translation>オプション:</translation>
     </message>
     <message>
-        <source>Specify configuration file (default: bitcoin.conf)</source>
-        <translation>設定ファイルの指定 (初期値: bitcoin.conf)</translation>
-    </message>
-    <message>
-        <source>Specify pid file (default: bitcoind.pid)</source>
-        <translation>pid ファイルの指定 (初期値: bitcoind.pid)</translation>
-    </message>
-    <message>
         <source>Specify data directory</source>
         <translation>データ ディレクトリの指定</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: 8333 or testnet: 18333)</source>
-        <translation>接続のポート番号 (初期値: 8333、testnet: 18333)</translation>
-    </message>
-    <message>
-        <source>Maintain at most &lt;n&gt; connections to peers (default: 125)</source>
-        <translation>ピアの最大接続数 (初期値: 125)</translation>
     </message>
     <message>
         <source>Connect to a node to retrieve peer addresses, and disconnect</source>
@@ -2056,18 +2116,6 @@ Address: %4
     <message>
         <source>Specify your own public address</source>
         <translation>あなた自身のパブリックなアドレスを指定</translation>
-    </message>
-    <message>
-        <source>Threshold for disconnecting misbehaving peers (default: 100)</source>
-        <translation>不正なピアを切断するためのしきい値 (初期値: 100)</translation>
-    </message>
-    <message>
-        <source>Number of seconds to keep misbehaving peers from reconnecting (default: 86400)</source>
-        <translation>不正なピアを再接続するまでの秒数 (初期値: 86400)</translation>
-    </message>
-    <message>
-        <source>Listen for JSON-RPC connections on &lt;port&gt; (default: 8332 or testnet: 18332)</source>
-        <translation>&lt;port&gt; で JSON-RPC 接続をリスン (初期値: 8332、testnet は 18332)</translation>
     </message>
     <message>
         <source>Accept command line and JSON-RPC commands</source>
@@ -2153,10 +2201,6 @@ rpcpassword=%s
         <translation>(デフォルト: 1)</translation>
     </message>
     <message>
-        <source>(default: wallet.dat)</source>
-        <translation>(デフォルト: wallet.dat)</translation>
-    </message>
-    <message>
         <source>Attempt to recover private keys from a corrupt wallet.dat</source>
         <translation>壊れた wallet.dat から秘密鍵を復旧することを試す</translation>
     </message>
@@ -2210,64 +2254,8 @@ rpcpassword=%s
         <translation>エラー: ウォレットはロックされ、取引を作成できません!</translation>
     </message>
     <message>
-        <source>Error: system error: </source>
-        <translation>エラー: システム エラー:</translation>
-    </message>
-    <message>
         <source>Failed to listen on any port. Use -listen=0 if you want this.</source>
         <translation>ポートのリスンに失敗しました。必要であれば -listen=0 を使用してください。</translation>
-    </message>
-    <message>
-        <source>Failed to read block info</source>
-        <translation>ブロック情報の読み取りに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to read block</source>
-        <translation>ブロックの読み取りに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to sync block index</source>
-        <translation>ブロック インデックスの同期に失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write block index</source>
-        <translation>ブロック インデックスの書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write block info</source>
-        <translation>ブロック情報の書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write block</source>
-        <translation>ブロックの書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write file info</source>
-        <translation>ファイル情報の書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write to coin database</source>
-        <translation>コインデータベースへの書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write transaction index</source>
-        <translation>取引インデックスの書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Failed to write undo data</source>
-        <translation>元へ戻すデータの書き込みに失敗しました</translation>
-    </message>
-    <message>
-        <source>Force safe mode (default: 0)</source>
-        <translation>セーフモードを矯正する (デフォルト: 0)</translation>
-    </message>
-    <message>
-        <source>Generate coins (default: 0)</source>
-        <translation>コインを生成 (初期値: 0)</translation>
-    </message>
-    <message>
-        <source>How many blocks to check at startup (default: 288, 0 = all)</source>
-        <translation>起動時に点検するブロック数 (初期値: 288, 0=すべて)</translation>
     </message>
     <message>
         <source>If &lt;category&gt; is not supplied, output all debugging information.</source>
@@ -2284,10 +2272,6 @@ rpcpassword=%s
     <message>
         <source>Rebuild block chain index from current blk000??.dat files</source>
         <translation>現在の blk000??.dat ファイルからブロック チェーンのインデックスを再構築</translation>
-    </message>
-    <message>
-        <source>Set the number of threads to service RPC calls (default: 4)</source>
-        <translation>RPC サービスのスレッド数を設定 (初期値: 4)</translation>
     </message>
     <message>
         <source>Specify wallet file (within data directory)</source>
@@ -2330,34 +2314,6 @@ rpcpassword=%s
         <translation>不正な額 -minrelaytxfee=&lt;amount&gt;: '%s'</translation>
     </message>
     <message>
-        <source>Limit size of signature cache to &lt;n&gt; entries (default: 50000)</source>
-        <translation>署名キャッシュのサイズを &lt;n&gt; エントリーに制限する (デフォルト: 50000)</translation>
-    </message>
-    <message>
-        <source>Log transaction priority and fee per kB when mining blocks (default: 0)</source>
-        <translation>ブロックの採掘時にトランザクションの優先度と1kBあたりの手数料をログに残す (デフォルト: 0)</translation>
-    </message>
-    <message>
-        <source>Maintain a full transaction index (default: 0)</source>
-        <translation>完全な取引インデックスを維持する (初期値: 0)</translation>
-    </message>
-    <message>
-        <source>Maximum per-connection receive buffer, &lt;n&gt;*1000 bytes (default: 5000)</source>
-        <translation>接続毎の最大受信バッファ &lt;n&gt;*1000 バイト (初期値: 5000)</translation>
-    </message>
-    <message>
-        <source>Maximum per-connection send buffer, &lt;n&gt;*1000 bytes (default: 1000)</source>
-        <translation>接続毎の最大送信バッファ &lt;n&gt;*1000 バイト (初期値: 1000)</translation>
-    </message>
-    <message>
-        <source>Only accept block chain matching built-in checkpoints (default: 1)</source>
-        <translation>内蔵のチェックポイントと一致するブロック チェーンのみを許可 (初期値: 1)</translation>
-    </message>
-    <message>
-        <source>Only connect to nodes in network &lt;net&gt; (IPv4, IPv6 or Tor)</source>
-        <translation>&lt;net&gt; (IPv4, IPv6, Tor) ネットワーク内のノードだけに接続する</translation>
-    </message>
-    <message>
         <source>RPC SSL options: (see the Bitcoin Wiki for SSL setup instructions)</source>
         <translation>RPC SSL オプション: (SSLのセットアップ手順はビットコインWikiを参照してください)</translation>
     </message>
@@ -2370,24 +2326,12 @@ rpcpassword=%s
         <translation>トレース/デバッグ情報を debug.log ファイルの代わりにコンソールへ送る</translation>
     </message>
     <message>
-        <source>Set minimum block size in bytes (default: 0)</source>
-        <translation>最小ブロックサイズをバイトで設定 (初期値: 0)</translation>
-    </message>
-    <message>
         <source>Shrink debug.log file on client startup (default: 1 when no -debug)</source>
         <translation>クライアント起動時に debug.log ファイルを縮小 (初期値: -debug オプションを指定しない場合は1)</translation>
     </message>
     <message>
         <source>Signing transaction failed</source>
         <translation>取引の署名に失敗しました</translation>
-    </message>
-    <message>
-        <source>Specify connection timeout in milliseconds (default: 5000)</source>
-        <translation>接続のタイムアウトをミリセコンドで指定 (初期値: 5000)</translation>
-    </message>
-    <message>
-        <source>System error: </source>
-        <translation>システム エラー:</translation>
     </message>
     <message>
         <source>Transaction amount too small</source>
@@ -2400,10 +2344,6 @@ rpcpassword=%s
     <message>
         <source>Transaction too large</source>
         <translation>取引が大き過ぎます</translation>
-    </message>
-    <message>
-        <source>Use UPnP to map the listening port (default: 0)</source>
-        <translation>リスン ポートの割当に UPnP を使用 (初期値: 0)</translation>
     </message>
     <message>
         <source>Use UPnP to map the listening port (default: 1 when listening)</source>
@@ -2438,24 +2378,12 @@ rpcpassword=%s
         <translation>ウォレットを最新のフォーマットにアップグレード</translation>
     </message>
     <message>
-        <source>Set key pool size to &lt;n&gt; (default: 100)</source>
-        <translation>key pool のサイズを &lt;n&gt; (初期値: 100) にセット</translation>
-    </message>
-    <message>
         <source>Rescan the block chain for missing wallet transactions</source>
         <translation>失ったウォレットの取引のブロック チェーンを再スキャン</translation>
     </message>
     <message>
         <source>Use OpenSSL (https) for JSON-RPC connections</source>
         <translation>JSON-RPC 接続に OpenSSL (https) を使用</translation>
-    </message>
-    <message>
-        <source>Server certificate file (default: server.cert)</source>
-        <translation>サーバ証明書ファイル (初期値: server.cert)</translation>
-    </message>
-    <message>
-        <source>Server private key (default: server.pem)</source>
-        <translation>サーバの秘密鍵 (初期値: server.pem)</translation>
     </message>
     <message>
         <source>This help message</source>

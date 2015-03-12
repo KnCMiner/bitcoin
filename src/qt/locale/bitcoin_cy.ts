@@ -1,4 +1,4 @@
-<TS language="cy" version="2.1">
+<TS language="cy" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -155,10 +155,6 @@
         <translation>Bar offer tabiau</translation>
     </message>
     <message>
-        <source>[testnet]</source>
-        <translation>[testnet]</translation>
-    </message>
-    <message>
         <source>Error</source>
         <translation>Gwall</translation>
     </message>
@@ -200,10 +196,6 @@
     </context>
 <context>
     <name>CoinControlDialog</name>
-    <message>
-        <source>Address</source>
-        <translation>Cyfeiriad</translation>
-    </message>
     <message>
         <source>Date</source>
         <translation>Dyddiad</translation>
@@ -284,10 +276,6 @@
     <message>
         <source>Form</source>
         <translation>Ffurflen</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Trafodion diweddar&lt;/b&gt;</translation>
     </message>
     </context>
 <context>

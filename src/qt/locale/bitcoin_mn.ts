@@ -1,4 +1,4 @@
-<TS language="mn" version="2.1">
+<TS language="mn" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -288,10 +288,6 @@ Address: %4
         <translation>Хэмжээ</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Хаяг</translation>
-    </message>
-    <message>
         <source>Date</source>
         <translation>Огноо</translation>
     </message>
@@ -402,10 +398,6 @@ Address: %4
         <translation>МБ</translation>
     </message>
     <message>
-        <source>Connect to the Bitcoin network through a SOCKS proxy.</source>
-        <translation>Биткойны сүлжээрүү SOCKS проксигоор холбогдох.</translation>
-    </message>
-    <message>
         <source>IP address of the proxy (e.g. IPv4: 127.0.0.1 / IPv6: ::1)</source>
         <translation>проксигийн IP хаяг (жишээ нь: IPv4: 127.0.0.1 / IPv6: ::1)</translation>
     </message>
@@ -425,16 +417,8 @@ Address: %4
 <context>
     <name>OverviewPage</name>
     <message>
-        <source>Wallet</source>
-        <translation>Түрүйвч</translation>
-    </message>
-    <message>
         <source>Available:</source>
         <translation>Хэрэглэж болох хэмжээ:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Сүүлд хийгдсэн гүйлгээнүүд&lt;/b&gt;</translation>
     </message>
     </context>
 <context>
@@ -1028,10 +1012,6 @@ Address: %4
     <message>
         <source>Options:</source>
         <translation>Сонголтууд:</translation>
-    </message>
-    <message>
-        <source>Listen for connections on &lt;port&gt; (default: 8333 or testnet: 18333)</source>
-        <translation>&lt;port&gt; дээрх холболтуудыг чагна (ѳгѳгдмѳл: 8333 эсвэл testnet: 18333)</translation>
     </message>
     <message>
         <source>Wallet options:</source>

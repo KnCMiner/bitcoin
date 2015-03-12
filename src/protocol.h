@@ -1,14 +1,14 @@
 // Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2013 The Bitcoin developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Copyright (c) 2009-2013 The Bitcoin Core developers
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef __cplusplus
 #error This header can only be compiled as C++.
 #endif
 
-#ifndef __INCLUDED_PROTOCOL_H__
-#define __INCLUDED_PROTOCOL_H__
+#ifndef BITCOIN_PROTOCOL_H
+#define BITCOIN_PROTOCOL_H
 
 #include "netbase.h"
 #include "serialize.h"
@@ -29,11 +29,13 @@
 class CMessageHeader
 {
 public:
-    CMessageHeader();
-    CMessageHeader(const char* pszCommand, unsigned int nMessageSizeIn);
+    typedef unsigned char MessageStartChars[MESSAGE_START_SIZE];
+
+    CMessageHeader(const MessageStartChars& pchMessageStartIn);
+    CMessageHeader(const MessageStartChars& pchMessageStartIn, const char* pszCommand, unsigned int nMessageSizeIn);
 
     std::string GetCommand() const;
-    bool IsValid() const;
+    bool IsValid(const MessageStartChars& messageStart) const;
 
     ADD_SERIALIZE_METHODS;
 
@@ -149,4 +151,4 @@ enum {
     MSG_FILTERED_BLOCK,
 };
 
-#endif // __INCLUDED_PROTOCOL_H__
+#endif // BITCOIN_PROTOCOL_H

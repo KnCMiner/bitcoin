@@ -1,4 +1,4 @@
-<TS language="es_MX" version="2.1">
+<TS language="es_MX" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -397,10 +397,6 @@
         <translation>Monto</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Domicilio</translation>
-    </message>
-    <message>
         <source>Date</source>
         <translation>Fecha</translation>
     </message>
@@ -568,10 +564,6 @@
     <message>
         <source>Form</source>
         <translation>Formulario</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Transacciones recientes&lt;/b&gt;</translation>
     </message>
     </context>
 <context>

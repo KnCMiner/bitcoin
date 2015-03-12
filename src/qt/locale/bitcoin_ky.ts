@@ -1,4 +1,4 @@
-<TS language="ky" version="2.1">
+<TS language="ky" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -72,10 +72,6 @@
     </context>
 <context>
     <name>CoinControlDialog</name>
-    <message>
-        <source>Address</source>
-        <translation>Дарек</translation>
-    </message>
     <message>
         <source>Date</source>
         <translation>Дата</translation>
@@ -153,10 +149,6 @@
     </context>
 <context>
     <name>OverviewPage</name>
-    <message>
-        <source>Wallet</source>
-        <translation>Капчык</translation>
-    </message>
     <message>
         <source>out of sync</source>
         <translation>синхрондоштурулган эмес</translation>

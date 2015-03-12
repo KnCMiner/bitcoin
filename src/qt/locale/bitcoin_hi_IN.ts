@@ -1,4 +1,4 @@
-<TS language="hi_IN" version="2.1">
+<TS language="hi_IN" version="2.0">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -191,10 +191,6 @@
         <source>Tabs toolbar</source>
         <translation>टैबस टूलबार</translation>
     </message>
-    <message>
-        <source>[testnet]</source>
-        <translation>[टेस्टनेट]</translation>
-    </message>
     <message numerus="yes">
         <source>%n active connection(s) to Bitcoin network</source>
         <translation><numerusform>%n सक्रिया संपर्क बीटकोइन नेटवर्क से</numerusform><numerusform>%n सक्रिया संपर्क बीटकोइन नेटवर्क से</numerusform></translation>
@@ -271,10 +267,6 @@ Address: %4
     <message>
         <source>Amount</source>
         <translation>राशि</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>पता</translation>
     </message>
     <message>
         <source>Date</source>
@@ -388,14 +380,6 @@ Address: %4
     <message>
         <source>Form</source>
         <translation>फार्म</translation>
-    </message>
-    <message>
-        <source>Wallet</source>
-        <translation>वॉलेट</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Recent transactions&lt;/b&gt;</source>
-        <translation>&lt;b&gt;हाल का लेन-देन&lt;/b&gt;</translation>
     </message>
     </context>
 <context>
@@ -859,14 +843,6 @@ Address: %4
     <message>
         <source>Options:</source>
         <translation>विकल्प:</translation>
-    </message>
-    <message>
-        <source>Specify configuration file (default: bitcoin.conf)</source>
-        <translation>configuraion की फाइल का विवरण दें (default: bitcoin.conf)</translation>
-    </message>
-    <message>
-        <source>Specify pid file (default: bitcoind.pid)</source>
-        <translation>pid फाइल का विवरण दें (default: bitcoin.pid)</translation>
     </message>
     <message>
         <source>Specify data directory</source>

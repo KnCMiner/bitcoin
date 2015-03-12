@@ -1,5 +1,5 @@
 // Copyright (c) 2013 The Bitcoin Core developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 //
@@ -7,12 +7,15 @@
 //
 
 #include "alert.h"
+#include "clientversion.h"
 #include "data/alertTests.raw.h"
 
 #include "serialize.h"
+#include "streams.h"
 #include "util.h"
 #include "utilstrencodings.h"
-#include "version.h"
+
+#include "test/test_bitcoin.h"
 
 #include <fstream>
 
@@ -77,7 +80,7 @@
 }
 #endif
 
-struct ReadAlerts
+struct ReadAlerts : public TestingSetup
 {
     ReadAlerts()
     {
@@ -91,7 +94,7 @@ struct ReadAlerts
                 alerts.push_back(alert);
             }
         }
-        catch (std::exception) { }
+        catch (const std::exception&) { }
     }
     ~ReadAlerts() { }
 
@@ -153,9 +156,6 @@ BOOST_AUTO_TEST_CASE(AlertApplies)
 }
 
 
-// This uses sh 'echo' to test the -alertnotify function, writing to a
-// /tmp file. So skip it on Windows:
-#ifndef WIN32
 BOOST_AUTO_TEST_CASE(AlertNotify)
 {
     SetMockTime(11);
@@ -170,15 +170,24 @@ BOOST_AUTO_TEST_CASE(AlertNotify)
 
     std::vector<std::string> r = read_lines(temp);
     BOOST_CHECK_EQUAL(r.size(), 4u);
+
+// Windows built-in echo semantics are different than posixy shells. Quotes and
+// whitespace are printed literally.
+
+#ifndef WIN32
     BOOST_CHECK_EQUAL(r[0], "Alert 1");
     BOOST_CHECK_EQUAL(r[1], "Alert 2, cancels 1");
     BOOST_CHECK_EQUAL(r[2], "Alert 2, cancels 1");
     BOOST_CHECK_EQUAL(r[3], "Evil Alert; /bin/ls; echo "); // single-quotes should be removed
-
+#else
+    BOOST_CHECK_EQUAL(r[0], "'Alert 1' ");
+    BOOST_CHECK_EQUAL(r[1], "'Alert 2, cancels 1' ");
+    BOOST_CHECK_EQUAL(r[2], "'Alert 2, cancels 1' ");
+    BOOST_CHECK_EQUAL(r[3], "'Evil Alert; /bin/ls; echo ' ");
+#endif
     boost::filesystem::remove(temp);
 
     SetMockTime(0);
 }
-#endif
 
 BOOST_AUTO_TEST_SUITE_END()

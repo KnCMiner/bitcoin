@@ -1,15 +1,18 @@
 // Copyright (c) 2011-2014 The Bitcoin Core developers
-// Distributed under the MIT/X11 software license, see the accompanying
+// Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include "main.h"
 #include "miner.h"
+#include "pubkey.h"
 #include "uint256.h"
 #include "util.h"
 
+#include "test/test_bitcoin.h"
+
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(miner_tests)
+BOOST_FIXTURE_TEST_SUITE(miner_tests, TestingSetup)
 
 static
 struct {
@@ -56,6 +59,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     uint256 hash;
 
     LOCK(cs_main);
+    Checkpoints::fEnabled = false;
 
     // Simple block creation, nothing special yet:
     BOOST_CHECK(pblocktemplate = CreateNewBlock(scriptPubKey));
@@ -79,7 +83,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         pblock->hashMerkleRoot = pblock->BuildMerkleTree();
         pblock->nNonce = blockinfo[i].nonce;
         CValidationState state;
-        BOOST_CHECK(ProcessBlock(state, NULL, pblock));
+        BOOST_CHECK(ProcessNewBlock(state, NULL, pblock));
         BOOST_CHECK(state.IsValid());
         pblock->hashPrevBlock = pblock->GetHash();
     }
@@ -170,7 +174,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     tx.vin[0].scriptSig = CScript() << OP_1;
     tx.vout[0].nValue = 4900000000LL;
     script = CScript() << OP_0;
-    tx.vout[0].scriptPubKey = GetScriptForDestination(script.GetID());
+    tx.vout[0].scriptPubKey = GetScriptForDestination(CScriptID(script));
     hash = tx.GetHash();
     mempool.addUnchecked(hash, CTxMemPoolEntry(tx, 11, GetTime(), 111.0, 11));
     tx.vin[0].prevout.hash = hash;
@@ -258,6 +262,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     BOOST_FOREACH(CTransaction *tx, txFirst)
         delete tx;
 
+    Checkpoints::fEnabled = true;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
