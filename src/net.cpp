@@ -78,8 +78,8 @@ uint64_t nLocalHostNonce = 0;
 static std::vector<ListenSocket> vhListenSocket;
 CAddrMan addrman;
 int nMaxConnections = 125;
-int nMaxOutbound = MAX_OUTBOUND_CONNECTIONS;
 bool fAddressesInitialized = false;
+int nMaxOutbound = MAX_OUTBOUND_CONNECTIONS;
 
 vector<CNode*> vNodes;
 CCriticalSection cs_vNodes;
@@ -105,6 +105,8 @@ static CSemaphore *semOutbound = NULL;
 // Signals for message handling
 static CNodeSignals g_signals;
 CNodeSignals& GetNodeSignals() { return g_signals; }
+
+bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
 void AddOneShot(string strDest)
 {
@@ -1276,7 +1278,7 @@ void ThreadOpenAddedConnections()
                 OpenNetworkConnection(addr, &grant, strAddNode.c_str());
                 MilliSleep(500);
             }
-            MilliSleep(5000);  // Retry every 5 seconds
+            MilliSleep(120000); // Retry every 2 minutes
         }
     }
 
@@ -1323,7 +1325,7 @@ void ThreadOpenAddedConnections()
             OpenNetworkConnection(CAddress(vserv[i % vserv.size()]), &grant);
             MilliSleep(500);
         }
-        MilliSleep(5000); // Retry every 5 seconds
+        MilliSleep(120000); // Retry every 2 minutes
     }
 }
 
