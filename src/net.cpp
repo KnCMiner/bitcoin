@@ -106,8 +106,6 @@ static CSemaphore *semOutbound = NULL;
 static CNodeSignals g_signals;
 CNodeSignals& GetNodeSignals() { return g_signals; }
 
-bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
-
 void AddOneShot(string strDest)
 {
     LOCK(cs_vOneShots);
