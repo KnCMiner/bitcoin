@@ -42,14 +42,24 @@ static int64_t abs64(int64_t n)
 
 void AddTimeData(const CNetAddr& ip, int64_t nOffsetSample)
 {
+    const int medianRange = 200;
     LOCK(cs_nTimeOffset);
     // Ignore duplicates
     static set<CNetAddr> setKnown;
     if (!setKnown.insert(ip).second)
         return;
 
+    // Prune old addresses
+    static list<CNetAddr> listKnown;
+    listKnown.push_front(ip);
+    while (listKnown.size() > medianRange) {
+        CNetAddr oldest = listKnown.back();
+        setKnown.erase(oldest);
+        listKnown.pop_back();
+    }
+
     // Add data
-    static CMedianFilter<int64_t> vTimeOffsets(200,0);
+    static CMedianFilter<int64_t> vTimeOffsets(medianRange,0);
     vTimeOffsets.input(nOffsetSample);
     LogPrintf("Added time data, samples %d, offset %+d (%+d minutes)\n", vTimeOffsets.size(), nOffsetSample, nOffsetSample/60);
 
