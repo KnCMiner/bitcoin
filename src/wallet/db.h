@@ -3,8 +3,8 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#ifndef BITCOIN_DB_H
-#define BITCOIN_DB_H
+#ifndef BITCOIN_WALLET_DB_H
+#define BITCOIN_WALLET_DB_H
 
 #include "clientversion.h"
 #include "serialize.h"
@@ -20,9 +20,6 @@
 
 #include <db_cxx.h>
 
-class CDiskBlockIndex;
-class COutPoint;
-
 extern unsigned int nWalletDBUpdated;
 
 class CDBEnv
@@ -30,7 +27,9 @@ class CDBEnv
 private:
     bool fDbEnvInit;
     bool fMockDb;
-    boost::filesystem::path path;
+    // Don't change into boost::filesystem::path, as that can result in
+    // shutdown problems/crashes caused by a static initialized internal pointer.
+    std::string strPath;
 
     void EnvShutdown();
 
@@ -307,4 +306,4 @@ public:
     bool static Rewrite(const std::string& strFile, const char* pszSkip = NULL);
 };
 
-#endif // BITCOIN_DB_H
+#endif // BITCOIN_WALLET_DB_H

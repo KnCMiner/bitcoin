@@ -2,10 +2,6 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Double-click to edit address or label</source>
-        <translation>Адресті немесе белгіні өзгерту үшін екі рет шертіңіз</translation>
-    </message>
-    <message>
         <source>Create a new address</source>
         <translation>Жаңа адрес енгізу</translation>
     </message>
@@ -377,8 +373,8 @@
         <translation>Күні</translation>
     </message>
     <message>
-        <source>Address</source>
-        <translation>Адрес</translation>
+        <source>Label</source>
+        <translation>таңба</translation>
     </message>
     </context>
 <context>

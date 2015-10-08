@@ -2,10 +2,6 @@
 <context>
     <name>AddressBookPage</name>
     <message>
-        <source>Double-click to edit address or label</source>
-        <translation>Klik dua kali untuk mengubah alamat atau label</translation>
-    </message>
-    <message>
         <source>Create a new address</source>
         <translation>Cipta alamat baru</translation>
     </message>
@@ -160,10 +156,6 @@
     </context>
 <context>
     <name>TransactionTableModel</name>
-    <message>
-        <source>Address</source>
-        <translation>Alamat</translation>
-    </message>
     </context>
 <context>
     <name>TransactionView</name>

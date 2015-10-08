@@ -19,9 +19,8 @@
 #   k) test ResendWalletTransactions - create transactions, startup fourth node, make sure it syncs
 #
 
-from test_framework import BitcoinTestFramework
-from util import *
-
+from test_framework.test_framework import BitcoinTestFramework
+from test_framework.util import *
 
 class WalletTest (BitcoinTestFramework):
 
@@ -62,7 +61,7 @@ class WalletTest (BitcoinTestFramework):
         walletinfo = self.nodes[0].getwalletinfo()
         assert_equal(walletinfo['immature_balance'], 0)
 
-        # Have node0 mine a block, thus they will collect their own fee. 
+        # Have node0 mine a block, thus it will collect its own fee.
         self.nodes[0].generate(1)
         self.sync_all()
 
@@ -151,6 +150,33 @@ class WalletTest (BitcoinTestFramework):
 
         assert(txid1 in self.nodes[3].getrawmempool())
         
+        #check if we can list zero value tx as available coins
+        #1. create rawtx
+        #2. hex-changed one output to 0.0 
+        #3. sign and send
+        #4. check if recipient (node0) can list the zero value tx
+        usp = self.nodes[1].listunspent()
+        inputs = [{"txid":usp[0]['txid'], "vout":usp[0]['vout']}]
+        outputs = {self.nodes[1].getnewaddress(): 49.998, self.nodes[0].getnewaddress(): 11.11}
+        
+        rawTx = self.nodes[1].createrawtransaction(inputs, outputs).replace("c0833842", "00000000") #replace 11.11 with 0.0 (int32)
+        decRawTx = self.nodes[1].decoderawtransaction(rawTx)
+        signedRawTx = self.nodes[1].signrawtransaction(rawTx)
+        decRawTx = self.nodes[1].decoderawtransaction(signedRawTx['hex'])
+        zeroValueTxid= decRawTx['txid']
+        sendResp = self.nodes[1].sendrawtransaction(signedRawTx['hex'])
+        
+        self.sync_all()
+        self.nodes[1].generate(1) #mine a block
+        self.sync_all()
+        
+        unspentTxs = self.nodes[0].listunspent() #zero value tx must be in listunspents output
+        found = False
+        for uTx in unspentTxs:
+            if uTx['txid'] == zeroValueTxid:
+                found = True
+                assert_equal(uTx['amount'], Decimal('0.00000000'));
+        assert(found)
         
         #do some -walletbroadcast tests
         stop_nodes(self.nodes)

@@ -149,11 +149,7 @@
     </context>
 <context>
     <name>OverviewPage</name>
-    <message>
-        <source>out of sync</source>
-        <translation>синхрондоштурулган эмес</translation>
-    </message>
-</context>
+    </context>
 <context>
     <name>PaymentServer</name>
     </context>
@@ -291,10 +287,6 @@
     <message>
         <source>Date</source>
         <translation>Дата</translation>
-    </message>
-    <message>
-        <source>Address</source>
-        <translation>Дарек</translation>
     </message>
     </context>
 <context>
