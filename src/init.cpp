@@ -884,6 +884,9 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     if (nMaxConnections < nUserMaxConnections)
         InitWarning(strprintf(_("Reducing -maxconnections from %d to %d, because of system limitations."), nUserMaxConnections, nMaxConnections));
 
+    // Limit number of blocks that may be requested in one go.
+    nMaxGetBlock = GetArg("-limitgetblock", 500);
+
     // ********************************************************* Step 3: parameter-to-internal-flags
 
     fDebug = !mapMultiArgs["-debug"].empty();
